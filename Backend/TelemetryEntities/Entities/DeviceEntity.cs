@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using ServerlessIoT.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ namespace TelemetryEntities.Entities
         public DeviceEntity(ILogger logger)
         {
             this.logger = logger;
-            EntityConfig = new DeviceEntityConfiguration();
+            this.EntityConfig = new DeviceEntityConfiguration();
         }
 
         #region [ State ]
@@ -48,6 +47,9 @@ namespace TelemetryEntities.Entities
             if (HistoryData == null)
                 HistoryData = new Dictionary<DateTimeOffset, DeviceData>();
 
+            if (telemetry.Timestamp < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention))
+                return;
+
             HistoryData[telemetry.Timestamp] = telemetry.Data;
 
             if (LastUpdate < telemetry.Timestamp)
@@ -73,7 +75,7 @@ namespace TelemetryEntities.Entities
 
 
         [FunctionName(nameof(DeviceEntity))]
-        public Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger logger)
+        public static Task Run([EntityTrigger] IDurableEntityContext ctx,ILogger logger)
             => ctx.DispatchAsync<DeviceEntity>(logger);
     }
 }
