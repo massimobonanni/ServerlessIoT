@@ -1,0 +1,38 @@
+﻿<Window x:Class="TelemetryDashboard.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TelemetryDashboard.WPF"
+        mc:Ignorable="d"
+        DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
+        Title="MainWindow" Height="600" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid  Margin="10" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Margin="0,0,10,0" Grid.Column="0">Telemetry API Url :</Label>
+            <TextBlock Text="{Binding Path=ApiURL,UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="0,0,10,0"></TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Column="2">
+                <Button Command="{Binding Path=StartTelemetryVisualization}">Start</Button>
+                <Button Command="{Binding Path=StopTelemetryVisualization}">Stop</Button>
+            </StackPanel>
+        </Grid>
+
+        <DataGrid Grid.Row="1" AutoGenerateColumns="false" ItemsSource="{Binding Path=Devices}" Margin="10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="DeviceId" Binding="{Binding Path=DeviceId}"/>
+                <DataGridTextColumn Header="Last Update" Binding="{Binding Path=LastTelemetry.Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                <DataGridTextColumn Header="Temperature" Binding="{Binding Path=LastTelemetry.Temperature}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
