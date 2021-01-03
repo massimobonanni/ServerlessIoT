@@ -1,17 +1,14 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-// This application uses the Azure Event Hubs Client for .NET
-// For samples see: https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/eventhub/Azure.Messaging.EventHubs/samples/README.md
-// For documentation see: https://docs.microsoft.com/azure/event-hubs/
-
+﻿using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Consumer;
+using Azure.Messaging.EventHubs.Processor;
+using Azure.Storage.Blobs;
 using CommandLine;
 using Newtonsoft.Json;
 using ServerlessIoT.Core;
 using ServerlessIoT.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -20,9 +17,6 @@ using TelemetryEntities.Rest;
 
 namespace TelemetryDispatcher
 {
-    /// <summary>
-    /// A sample to illustrate reading Device-to-Cloud messages from a service app.
-    /// </summary>
     internal class Program
     {
         private static Parameters _parameters;
@@ -30,7 +24,6 @@ namespace TelemetryDispatcher
 
         public static async Task Main(string[] args)
         {
-            // Parse application parameters
             ParserResult<Parameters> result = Parser.Default.ParseArguments<Parameters>(args)
                 .WithParsed(parsedParams =>
                 {
@@ -41,11 +34,7 @@ namespace TelemetryDispatcher
                     Environment.Exit(1);
                 });
 
-            // Either the connection string must be supplied, or the set of endpoint, name, and shared access key must be.
-            if (string.IsNullOrWhiteSpace(_parameters.EventHubConnectionString)
-                && (string.IsNullOrWhiteSpace(_parameters.EventHubCompatibleEndpoint)
-                    || string.IsNullOrWhiteSpace(_parameters.EventHubName)
-                    || string.IsNullOrWhiteSpace(_parameters.SharedAccessKey)))
+            if (!_parameters.IsValid())
             {
                 Console.WriteLine(CommandLine.Text.HelpText.AutoBuild(result, null, null));
                 Environment.Exit(1);
@@ -56,7 +45,6 @@ namespace TelemetryDispatcher
 
             Console.WriteLine("Read device to cloud messages. Ctrl-C to exit.\n");
 
-            // Set up a way for the user to gracefully shutdown
             using var cts = new CancellationTokenSource();
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
@@ -65,43 +53,74 @@ namespace TelemetryDispatcher
                 Console.WriteLine("Exiting...");
             };
 
-            // Run the sample
-            await ReceiveMessagesFromDeviceAsync(cts.Token);
+            BlobContainerClient storageClient =
+                new BlobContainerClient(_parameters.StorageConnectionString, _parameters.BlobContainerName);
+
+            EventProcessorClient processor = new EventProcessorClient(
+                storageClient,
+                _parameters.ConsumerGroupName,
+                _parameters.GetEventHubConnectionString(),
+                _parameters.EventHubName,
+               new EventProcessorClientOptions()
+               {
+                   Identifier="TelemetryDispatcher"
+               }
+            );
+
+            processor.ProcessEventAsync += processEventHandler;
+            processor.ProcessErrorAsync += processErrorHandler;
+
+            await processor.StartProcessingAsync();
+
+            try
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                }
+
+                await processor.StopProcessingAsync();
+            }
+            finally
+            {
+                // To prevent leaks, the handlers should be removed when processing is complete
+                processor.ProcessEventAsync -= processEventHandler;
+                processor.ProcessErrorAsync -= processErrorHandler;
+            }
 
             Console.WriteLine("Cloud message reader finished.");
         }
 
-        // Asynchronously create a PartitionReceiver for a partition and then start
-        // reading any messages sent from the simulated client.
-        private static async Task ReceiveMessagesFromDeviceAsync(CancellationToken ct)
+        private static async Task processEventHandler(ProcessEventArgs eventArgs)
         {
-            string connectionString = _parameters.GetEventHubConnectionString();
-
-            await using var consumer = new EventHubConsumerClient(
-                EventHubConsumerClient.DefaultConsumerGroupName,
-                connectionString,
-                _parameters.EventHubName);
-
-            Console.WriteLine("Listening for messages on all partitions.");
-
             try
             {
-                await foreach (PartitionEvent partitionEvent in consumer.ReadEventsAsync(ct))
-                {
-                    LogPartitionEvent(partitionEvent);
-                    if (_parameters.IsAPIEndpointEnabled())
-                        await SendPartitionEventToEntitiesAsync(partitionEvent, ct);
-                }
+                LogProcessEventArgs(eventArgs);
+                if (_parameters.IsAPIEndpointEnabled())
+                    await SendProcessEventArgsToEntitiesAsync(eventArgs);
             }
-            catch (TaskCanceledException)
+            catch (Exception ex)
             {
-
+                Console.WriteLine($"\n[ERROR] processEventHandler -> {ex.Message}");
             }
         }
 
-        private static async Task SendPartitionEventToEntitiesAsync(PartitionEvent partitionEvent, CancellationToken ct)
+        private static Task processErrorHandler(ProcessErrorEventArgs eventArgs)
         {
-            var deviceTelemetry = partitionEvent.ToDeviceTelemetry();
+            try
+            {
+                Console.WriteLine($"\n[ERROR] processErrorHandler -> Operation '{eventArgs.Operation}' from Partition {eventArgs.PartitionId} - {eventArgs.Exception.Message} ");
+            }
+            catch
+            {
+
+            }
+            return Task.CompletedTask;
+        }
+
+        private static async Task SendProcessEventArgsToEntitiesAsync(ProcessEventArgs eventArgs, CancellationToken ct = default)
+        {
+            var deviceTelemetry = eventArgs.ToDeviceTelemetry();
             if (deviceTelemetry != null)
             {
                 try
@@ -115,24 +134,25 @@ namespace TelemetryDispatcher
             }
         }
 
-        private static void LogPartitionEvent(PartitionEvent partitionEvent)
+        private static void LogProcessEventArgs(ProcessEventArgs eventArgs)
         {
-            Console.WriteLine($"\nMessage received on partition {partitionEvent.Partition.PartitionId}:");
+            Console.WriteLine($"\nMessage received on partition {eventArgs.Partition.PartitionId}:");
 
-            string data = Encoding.UTF8.GetString(partitionEvent.Data.Body.ToArray());
+            string data = Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray());
             Console.WriteLine($"\tMessage body: {data}");
 
             Console.WriteLine("\tApplication properties (set by device):");
-            foreach (KeyValuePair<string, object> prop in partitionEvent.Data.Properties)
+            foreach (KeyValuePair<string, object> prop in eventArgs.Data.Properties)
             {
                 Console.WriteLine($"\t\t{prop.Key}: {prop.Value}");
             }
 
             Console.WriteLine("\tSystem properties (set by IoT Hub):");
-            foreach (KeyValuePair<string, object> prop in partitionEvent.Data.SystemProperties)
+            foreach (KeyValuePair<string, object> prop in eventArgs.Data.SystemProperties)
             {
                 Console.WriteLine($"\t\t{prop.Key}: {prop.Value}");
             }
         }
+
     }
 }

@@ -1,7 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using CommandLine;
+﻿using CommandLine;
 using System;
 
 namespace TelemetryDispatcher
@@ -26,7 +23,7 @@ namespace TelemetryDispatcher
         public string EventHubName { get; set; }
 
         [Option(
-            's',
+            'a',
             "SharedAccessKey",
             HelpText = "A primary or shared access key from your IoT Hub instance, with the 'service' permission. Use `az iot hub policy show --name service --query primaryKey --hub-name {your IoT Hub name}` to fetch via the Azure CLI.")]
         public string SharedAccessKey { get; set; }
@@ -36,6 +33,25 @@ namespace TelemetryDispatcher
             "EventHubConnectionString",
             HelpText = "The connection string to the event hub-compatible endpoint. Use the Azure portal to get this parameter. If this value is provided, all the others are not necessary.")]
         public string EventHubConnectionString { get; set; }
+
+        [Option(
+            's',
+            "StorageConnectionString",
+            HelpText = "The storage connection string uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
+        public string StorageConnectionString { get; set; }
+
+        [Option(
+            'b',
+            "BlobContainerName",
+            HelpText = "The blob container name uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
+        public string BlobContainerName { get; set; }
+
+        [Option(
+            'g',
+            "ConsumerGroup",
+            HelpText = "The consumer group name uses by the dispatcher connect to the iot hub. The default value is '$Default'.",
+            Default ="$Default")]
+        public string ConsumerGroupName { get; set; }
 
         [Option(
             'u',
@@ -59,5 +75,19 @@ namespace TelemetryDispatcher
             return !string.IsNullOrWhiteSpace(EntitiesAPIUrl) &&
                 Uri.IsWellFormedUriString(EntitiesAPIUrl, UriKind.Absolute);
         }
+
+        internal bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(EventHubConnectionString)
+                && (string.IsNullOrWhiteSpace(EventHubCompatibleEndpoint)
+                    || string.IsNullOrWhiteSpace(EventHubName)
+                    || string.IsNullOrWhiteSpace(SharedAccessKey))
+                && (string.IsNullOrWhiteSpace(StorageConnectionString) && string.IsNullOrWhiteSpace(BlobContainerName)))
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }
