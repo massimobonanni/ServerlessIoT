@@ -1,5 +1,6 @@
 ﻿using ServerlessIoT.Core;
 using ServerlessIoT.Core.Interfaces;
+using ServerlessIoT.Core.Models;
 using StatefulPatternFunctions.Rest;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,46 @@ namespace TelemetryEntities.Rest
             var response = await this._httpClient.PostAsync(uri, postContent, cancellationToken);
 
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(CancellationToken token)
+        {
+            var uri = this.CreateAPIUri("");
+            var response = await this._httpClient.GetAsync(uri, token);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                var profiles = JsonSerializer.Deserialize<List<DeviceInfoModel>>(content,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    });
+
+                return profiles;
+            }
+            return null;
+        }
+
+        public async Task<DeviceInfoModel> GetDeviceAsync(string deviceId, CancellationToken token)
+        {
+            var uri = this.CreateAPIUri($"{deviceId}");
+
+            var response = await this._httpClient.GetAsync(uri, token);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                var profile = JsonSerializer.Deserialize<DeviceInfoModel>(content,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    });
+
+                return profile;
+            }
+            return null;
+
         }
     }
 }
