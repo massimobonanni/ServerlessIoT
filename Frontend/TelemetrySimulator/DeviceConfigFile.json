@@ -1,0 +1,16 @@
+{
+  "devices": [
+    {
+      "connectionString": "",
+      "name": "Paperino",
+      "id": "paperino",
+      "pollingIntervalInSec": 10
+    },
+    {
+      "connectionString": "",
+      "name": "Topolino",
+      "id": "topolino",
+      "pollingIntervalInSec": 10
+    }
+  ]
+}

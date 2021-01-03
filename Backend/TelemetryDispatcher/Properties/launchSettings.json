@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TelemetryDispatcher": {
+      "commandName": "Project",
+      "commandLineArgs": "-c  Endpoint=sb://ihsuproddbres031dednamespace.servicebus.windows.net/;SharedAccessKeyName=service;SharedAccessKey=sjDdzLkGOJSssd2pMY7sH7Ds7A5J3bsOd/j3RgzYYIg=;EntityPath=iothub-ehub-iotmaxdemo-2752391-56708ed91a -n iothub-ehub-iotmaxdemo-2752391-56708ed91a"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

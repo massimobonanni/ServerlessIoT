@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TelemetrySimulator": {
+      "commandName": "Project",
+      "commandLineArgs": "-f \"d:\\test-1device.json\" -d 10"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
