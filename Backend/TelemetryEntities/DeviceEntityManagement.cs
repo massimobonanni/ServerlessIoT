@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ServerlessIoT.Core;
 using ServerlessIoT.Core.Models;
 using System;
@@ -62,6 +63,24 @@ namespace TelemetryEntities
             } while (queryDefinition.ContinuationToken != null && queryDefinition.ContinuationToken != "bnVsbA==");
 
             return new OkObjectResult(result);
+        }
+
+        [FunctionName(nameof(GetDevice))]
+        public static async Task<IActionResult> GetDevice(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "devices/{deviceId}")] HttpRequest req,
+            string deviceId,
+            [DurableClient] IDurableEntityClient client)
+        {
+            var entityId = new EntityId(nameof(DeviceEntity), deviceId);
+
+            var entity = await client.ReadEntityStateAsync<JObject>(entityId);
+            if (entity.EntityExists)
+            {
+                var device = entity.EntityState.ToDeviceInfoModel();
+                device.DeviceId = deviceId;
+                return new OkObjectResult(device);
+            }
+            return new NotFoundObjectResult(deviceId);
         }
     }
 

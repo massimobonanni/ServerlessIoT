@@ -14,14 +14,14 @@ namespace Microsoft.Azure.WebJobs.Extensions.DurableTask
                 return null;
 
             var retVal = new DeviceInfoModel();
-            retVal.DeviceId = entity.EntityId.EntityKey;
 
             var jobject = entity.State as JObject;
             if (jobject != null)
             {
-                retVal.DeviceName = (string)jobject.Property("deviceName").Value;
-                retVal.LastTelemetry = entity.ToDeviceTelemetryModel();
+                retVal = jobject.ToDeviceInfoModel();
             }
+            retVal.DeviceId = entity.EntityId.EntityKey;
+
 
             return retVal;
         }
@@ -38,10 +38,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.DurableTask
                 var lastTelemetry = jobject.Property("lastData").Value as JObject;
                 if (lastTelemetry != null)
                 {
-                    retVal = new DeviceTelemetryModel();
-                    retVal.Timestamp = (DateTimeOffset)jobject.Property("lastUpdate").Value;
-                    retVal.Temperature = (double)lastTelemetry.Property("temperature").Value;
-                    retVal.Humidity = (double)lastTelemetry.Property("humidity").Value;
+                    retVal = lastTelemetry.ToDeviceTelemetryModel();
                 }
             }
 
