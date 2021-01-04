@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using ServerlessIoT.Core;
 using ServerlessIoT.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Newtonsoft.Json.Linq
@@ -32,6 +34,32 @@ namespace Newtonsoft.Json.Linq
                 retVal.Timestamp = (DateTimeOffset)jobject.Property("lastUpdate").Value;
                 retVal.Temperature = (double)lastTelemetry.Property("temperature").Value;
                 retVal.Humidity = (double)lastTelemetry.Property("humidity").Value;
+            }
+
+            return retVal;
+        }
+
+        public static DeviceDetailModel ToDeviceDetailModel(this JObject jobject)
+        {
+            if (jobject == null)
+                return null;
+
+            var retVal = new DeviceDetailModel();
+            retVal.DeviceName = (string)jobject.Property("deviceName").Value;
+            retVal.LastTelemetry = jobject.ToDeviceTelemetryModel();
+            var historyData = jobject.Property("historyData").Value.ToObject<Dictionary<DateTimeOffset, DeviceData>>();
+
+            if (historyData != null)
+            {
+                retVal.TelemetryHistory = historyData
+                    .Select(kv => new DeviceTelemetryModel()
+                        {
+                            Timestamp = kv.Key,
+                            Temperature = kv.Value.Temperature,
+                            Humidity = kv.Value.Humidity
+                        })
+                    .OrderBy(v=>v.Timestamp)
+                    .ToList();
             }
 
             return retVal;

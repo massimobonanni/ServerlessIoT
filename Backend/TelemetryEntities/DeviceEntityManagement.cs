@@ -81,7 +81,7 @@ namespace TelemetryEntities
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
             if (entity.EntityExists)
             {
-                var device = entity.EntityState.ToDeviceInfoModel();
+                var device = entity.EntityState.ToDeviceDetailModel();
                 device.DeviceId = deviceId;
                 return new OkObjectResult(device);
             }

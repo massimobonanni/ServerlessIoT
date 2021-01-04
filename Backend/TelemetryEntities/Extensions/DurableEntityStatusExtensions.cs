@@ -25,6 +25,25 @@ namespace Microsoft.Azure.WebJobs.Extensions.DurableTask
 
             return retVal;
         }
+
+        public static DeviceDetailModel ToDeviceDetailModel(this DurableEntityStatus entity)
+        {
+            if (entity == null)
+                return null;
+
+            var retVal = new DeviceDetailModel();
+
+            var jobject = entity.State as JObject;
+            if (jobject != null)
+            {
+                retVal = jobject.ToDeviceDetailModel();
+            }
+            retVal.DeviceId = entity.EntityId.EntityKey;
+
+
+            return retVal;
+        }
+
         public static DeviceTelemetryModel ToDeviceTelemetryModel(this DurableEntityStatus entity)
         {
             if (entity == null)
