@@ -5,6 +5,8 @@ namespace StatefulPatternFunctions.Rest
 {
     public abstract class RestClientBase
     {
+        protected virtual string BaseEndpoint { get; }
+
         protected readonly HttpClient _httpClient;
         protected readonly string _baseUrl;
         protected readonly string _apiKey;
@@ -12,17 +14,19 @@ namespace StatefulPatternFunctions.Rest
         public RestClientBase(HttpClient httpClient, string baseUrl, string apiKey)
         {
             this._httpClient = httpClient;
+            if (baseUrl.EndsWith("/"))
+                baseUrl = baseUrl.Remove(baseUrl.Length - 1, 1);
             this._baseUrl = baseUrl;
             this._apiKey = apiKey;
         }
 
-        protected virtual Uri CreateAPIUri(string apiEndpoint)
+        protected virtual Uri CreateAPIUri(string apiEndpoint = null)
         {
             string url;
 
             if (string.IsNullOrWhiteSpace(apiEndpoint))
             {
-                url = $"{this._baseUrl}";
+                url = $"{this._baseUrl}/{this.BaseEndpoint}";
             }
             else
             {

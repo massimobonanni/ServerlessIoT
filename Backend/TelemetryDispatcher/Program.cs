@@ -40,7 +40,7 @@ namespace TelemetryDispatcher
                 Environment.Exit(1);
             }
 
-            _telemetryManager = new DeviceEntityManagementRestProvider(new HttpClient(),
+            _telemetryManager = new TelemetryManagerRestProvider(new HttpClient(),
                 _parameters.EntitiesAPIUrl, _parameters.EntitiesAPIKey);
 
             Console.WriteLine("Read device to cloud messages. Ctrl-C to exit.\n");

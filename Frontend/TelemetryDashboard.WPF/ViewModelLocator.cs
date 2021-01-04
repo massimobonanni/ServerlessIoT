@@ -21,12 +21,12 @@ namespace TelemetryDashboard.WPF
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
             SimpleIoc.Default.Register(() => new HttpClient());
-            SimpleIoc.Default.Register<ITelemetryManager>(() =>
+            SimpleIoc.Default.Register<IDeviceManager>(() =>
             {
                 string baseUrl = "http://localhost:7071";
                 string apiKey = null;
                 var httpClient = SimpleIoc.Default.GetInstance<HttpClient>();
-                return new DeviceEntityManagementRestProvider(httpClient, baseUrl, apiKey);
+                return new DeviceManagerRestProvider(httpClient, baseUrl, apiKey);
             });
 
             SimpleIoc.Default.Register<MainViewModel>();

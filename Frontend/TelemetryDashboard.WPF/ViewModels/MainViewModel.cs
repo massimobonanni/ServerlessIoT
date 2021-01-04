@@ -15,19 +15,19 @@ namespace TelemetryDashboard.WPF.ViewModels
     public class MainViewModel : ViewModelBase
     {
 
-        private readonly BackgroundWorker _telemetryUpdateWorker;
-        private readonly ITelemetryManager _telemetryManager;
+        private readonly BackgroundWorker _devicesUpdateWorker;
+        private readonly IDeviceManager _deviceManager;
 
-        public MainViewModel(ITelemetryManager telemetryManager)
+        public MainViewModel(IDeviceManager deviceManager)
         {
-            this._telemetryManager = telemetryManager;
+            this._deviceManager = deviceManager;
 
-            _telemetryUpdateWorker = new BackgroundWorker();
-            _telemetryUpdateWorker.WorkerSupportsCancellation = true;
-            _telemetryUpdateWorker.DoWork += TelemetryUpdateWorker_DoWork;
+            _devicesUpdateWorker = new BackgroundWorker();
+            _devicesUpdateWorker.WorkerSupportsCancellation = true;
+            _devicesUpdateWorker.DoWork += DevicesUpdateWorker_DoWork;
         }
 
-        private async void TelemetryUpdateWorker_DoWork(object sender, DoWorkEventArgs e)
+        private async void DevicesUpdateWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             var worker = sender as BackgroundWorker;
 
@@ -38,7 +38,7 @@ namespace TelemetryDashboard.WPF.ViewModels
 
             while (!worker.CancellationPending)
             {
-                var devices = await this._telemetryManager.GetDevicesAsync(default);
+                var devices = await this._deviceManager.GetDevicesAsync(default);
 
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
@@ -116,7 +116,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                     _startTelemetryVisualization = new RelayCommand(
                         () =>
                         {
-                            this._telemetryUpdateWorker.RunWorkerAsync();
+                            this._devicesUpdateWorker.RunWorkerAsync();
                         },
                         () =>
                         {
@@ -137,7 +137,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                     _stopTelemetryVisualization = new RelayCommand(
                         () =>
                         {
-                            this._telemetryUpdateWorker.CancelAsync();
+                            this._devicesUpdateWorker.CancelAsync();
                         },
                         () =>
                         {

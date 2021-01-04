@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace ServerlessIoT.Core.Interfaces
 {
-    public interface ITelemetryManager
+    public interface IDeviceManager
     {
-        Task<bool> SendTelemetryToDeviceAsync(DeviceTelemetry telemetry, CancellationToken cancellationToken);
+        Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(CancellationToken token);
 
+        Task<DeviceInfoModel> GetDeviceAsync(string deviceId, CancellationToken token);
     }
 }
