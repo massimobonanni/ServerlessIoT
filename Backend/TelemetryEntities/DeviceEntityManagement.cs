@@ -14,6 +14,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using TelemetryEntities.Entities;
+using TelemetryEntities.Filters;
 
 namespace TelemetryEntities
 {
@@ -43,6 +44,8 @@ namespace TelemetryEntities
         {
             var result = new List<DeviceInfoModel>();
 
+            var filters = GetDevicesFilters.CreateFromHttpRequest(req);
+
             var queryDefinition = new EntityQuery()
             {
                 EntityName = nameof(DeviceEntity),
@@ -56,7 +59,9 @@ namespace TelemetryEntities
 
                 foreach (var item in queryResult.Entities)
                 {
-                    result.Add(item.ToDeviceInfoModel());
+                    var device = item.ToDeviceInfoModel();
+                    if (filters.IsDeviceValid(device))
+                        result.Add(item.ToDeviceInfoModel());
                 }
 
                 queryDefinition.ContinuationToken = queryResult.ContinuationToken;
