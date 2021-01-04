@@ -12,12 +12,28 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using TelemetrySimulator.TelemetryGenerators;
 
 namespace TelemetrySimulator
 {
     class Program
     {
         private static Parameters _parameters;
+
+        private static TelemetryGeneratorConfiguration DefaultTemperatureGeneratorConfiguration =
+            new TelemetryGeneratorConfiguration()
+            {
+                Name = "RandomTelemetryGenerator",
+                Configuration = "{'maxValue': 30.0, 'minValue':0.0}"
+            };
+        private static TelemetryGeneratorConfiguration DefaultHumidityGeneratorConfiguration =
+            new TelemetryGeneratorConfiguration()
+            {
+                Name = "RandomTelemetryGenerator",
+                Configuration = "{'maxValue': 100.0, 'minValue':0.0}"
+            };
+
+        private static Random rand = new Random(DateTime.Now.Millisecond);
 
         static async Task Main(string[] args)
         {
@@ -36,21 +52,13 @@ namespace TelemetrySimulator
 
             Console.WriteLine("Telemetry simulator.");
 
-            DevicesConfiguration config = null;
-            if (_parameters.IsFileConfig())
-            {
-                config = await ReadFromFileConfigAsync(_parameters);
-            }
-            else
-            {
-                config = await ReadFromBlobStorageAsync(_parameters);
-            }
+            DevicesConfiguration config = await ReadConfigurationAsync(_parameters);
 
             Console.WriteLine("Press control-C to exit.");
 
             using var cts = new CancellationTokenSource();
 
-            if ( _parameters.ActualDuration > 0)
+            if (_parameters.ActualDuration > 0)
             {
                 cts.CancelAfter(_parameters.ActualDuration * 1000);
             }
@@ -71,6 +79,33 @@ namespace TelemetrySimulator
 
             Task.WaitAll(tasks.ToArray());
 
+        }
+
+        private static async Task<DevicesConfiguration> ReadConfigurationAsync(Parameters parameters)
+        {
+            DevicesConfiguration config = null;
+            if (_parameters.IsFileConfig())
+            {
+                config = await ReadFromFileConfigAsync(parameters);
+            }
+            else
+            {
+                config = await ReadFromBlobStorageAsync(parameters);
+            }
+
+            foreach (var device in config.Devices)
+            {
+                if (device.TemperatureGenerator == null)
+                {
+                    device.TemperatureGenerator = DefaultTemperatureGeneratorConfiguration;
+                }
+                if (device.HumidityGenerator == null)
+                {
+                    device.HumidityGenerator = DefaultHumidityGeneratorConfiguration;
+                }
+            }
+
+            return config;
         }
 
         private static async Task<DevicesConfiguration> ReadFromBlobStorageAsync(Parameters parameters)
@@ -94,22 +129,21 @@ namespace TelemetrySimulator
             return JsonSerializer.Deserialize<DevicesConfiguration>(configFile);
         }
 
-        private static Random rand = new Random(DateTime.Now.Millisecond);
 
         private static async Task SendDeviceToCloudMessagesAsync(DeviceConfiguration device, CancellationToken ct)
         {
-            var cs = IotHubConnectionStringBuilder.Create(device.ConnectionString);
+            DeviceClient deviceClient = null;
+            if (!string.IsNullOrWhiteSpace(device.ConnectionString))
+            {
+                var cs = IotHubConnectionStringBuilder.Create(device.ConnectionString);
+                deviceClient = DeviceClient.CreateFromConnectionString(cs.ToString(), TransportType.Mqtt);
+            }
 
-            var deviceClient = DeviceClient.CreateFromConnectionString(cs.ToString(), TransportType.Mqtt);
-
-            double minTemperature = 20;
-            double minHumidity = 60;
+            var temperatureGenerator = TelemetryGeneratorFactory.Create(device.TemperatureGenerator);
+            var humidityGenerator = TelemetryGeneratorFactory.Create(device.HumidityGenerator);
 
             while (!ct.IsCancellationRequested)
             {
-                double currentTemperature = minTemperature + rand.NextDouble() * 15;
-                double currentHumidity = minHumidity + rand.NextDouble() * 20;
-
                 var telemetry = new DeviceTelemetry()
                 {
                     DeviceId = device.Id,
@@ -117,12 +151,11 @@ namespace TelemetrySimulator
                     Timestamp = DateTimeOffset.Now,
                     Data = new DeviceData()
                     {
-                        Humidity = currentHumidity,
-                        Temperature = currentTemperature
+                        Humidity = humidityGenerator.GenerateNextValue(),
+                        Temperature = temperatureGenerator.GenerateNextValue()
                     }
                 };
 
-                // Create JSON message
                 string messageBody = JsonSerializer.Serialize(telemetry);
                 using var message = new Message(Encoding.ASCII.GetBytes(messageBody))
                 {
@@ -131,8 +164,9 @@ namespace TelemetrySimulator
                 };
 
 
-                // Send the telemetry message
-                await deviceClient.SendEventAsync(message);
+                // Send the telemetry message (if the connectionstring for device is configured)
+                if (deviceClient != null)
+                    await deviceClient.SendEventAsync(message);
                 Console.WriteLine($"{DateTime.Now} > Sending message: {messageBody}");
 
                 try
@@ -145,7 +179,8 @@ namespace TelemetrySimulator
                 }
             }
 
-            deviceClient.Dispose();
+            if (deviceClient != null)
+                deviceClient.Dispose();
         }
     }
 }
