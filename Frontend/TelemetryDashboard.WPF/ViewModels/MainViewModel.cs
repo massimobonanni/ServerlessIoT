@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using TelemetryDashboard.WPF.Models;
+using DeviceTelemetryModel = TelemetryDashboard.WPF.Models.DeviceTelemetryModel;
 
 namespace TelemetryDashboard.WPF.ViewModels
 {
@@ -224,8 +226,17 @@ namespace TelemetryDashboard.WPF.ViewModels
                             this.TelemetryDeviceLastUpdate = device.LastTelemetry.Timestamp;
                             this.TelemetryDeviceName = device.DeviceName;
 
-                            var orderedTelemetry = device.TelemetryHistory.OrderByDescending(t => t.Timestamp);
+                            var orderedTelemetry = device.TelemetryHistory
+                                .Select(t => new DeviceTelemetryModel()
+                                {
+                                    Timestamp = t.Timestamp.LocalDateTime,
+                                    Humidity = t.Humidity,
+                                    Temperature = t.Temperature
+                                })
+                                .OrderByDescending(t => t.Timestamp);
+
                             this.DeviceTelemetries = new ObservableCollection<DeviceTelemetryModel>(orderedTelemetry);
+
                         }
                         this.IsBusy = false;
                     }
@@ -240,7 +251,7 @@ namespace TelemetryDashboard.WPF.ViewModels
             Dispatcher.CurrentDispatcher.Invoke(() => this.IsBusy = false);
         }
 
-        private TimeSpan GetTelemetriesPolling = TimeSpan.FromSeconds(5);
+        private TimeSpan GetTelemetriesPolling = TimeSpan.FromSeconds(2);
         #endregion [ Background worker for telemetry ]
 
     }

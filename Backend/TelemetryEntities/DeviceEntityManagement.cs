@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TelemetryEntities.Entities;
 using TelemetryEntities.Filters;
+using TelemetryEntities.Models;
 
 namespace TelemetryEntities
 {
@@ -86,6 +87,24 @@ namespace TelemetryEntities
                 return new OkObjectResult(device);
             }
             return new NotFoundObjectResult(deviceId);
+        }
+
+        [FunctionName(nameof(SetConfiguration))]
+        public static async Task<IActionResult> SetConfiguration(
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "devices/{deviceId}/configuration")] HttpRequest req,
+            string deviceId,
+            [DurableClient] IDurableEntityClient client)
+        {
+
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var configuration = JsonConvert.DeserializeObject<DeviceEntityConfiguration>(requestBody);
+
+            var entityId = new EntityId(nameof(DeviceEntity), deviceId);
+
+            await client.SignalEntityAsync(entityId,
+                   nameof(DeviceEntity.SetConfiguration), configuration);
+
+            return new OkObjectResult(configuration);
         }
     }
 

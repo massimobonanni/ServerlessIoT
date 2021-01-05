@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TelemetryDashboard.WPF"
+        xmlns:local="clr-namespace:TelemetryDashboard.WPF" xmlns:chart="clr-namespace:Syncfusion.UI.Xaml.Charts;assembly=Syncfusion.SfChart.WPF"
         mc:Ignorable="d"
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
-        Title="MainWindow" Height="600" Width="800">
+        Title="MainWindow" Height="800" Width="1000">
     <Grid>
         <Grid Visibility="{Binding Path=SearchPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
@@ -14,7 +14,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
+
             <Grid  Margin="10" Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -81,9 +81,14 @@
             </Grid>
 
             <Grid Name="DeviceTelemetries" Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
                 <DataGrid AutoGenerateColumns="false" ItemsSource="{Binding Path=DeviceTelemetries}" Margin="10"
-                      CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                      CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" Grid.Column="0"
                       SelectionMode="Single">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Last Update" Binding="{Binding Path=Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss.fff}}"/>
@@ -91,6 +96,45 @@
                         <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity}"/>
                     </DataGrid.Columns>
                 </DataGrid>
+
+                <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+
+                <Grid Grid.Column="2">
+                    <StackPanel Orientation="Vertical">
+                        <!-- Comment this region if you don't have Syncfusion License -->
+                        <chart:SfChart x:Name="TemperatureChart" Margin="10" HorizontalAlignment="Center"
+                                       Palette="BlueChrome" Header="Temperature">
+                            <chart:SfChart.PrimaryAxis>
+                                <chart:DateTimeAxis Header="Date" LabelFormat="HH:mm:ss.fff" IntervalType="Seconds" 
+                                                    Interval="10" ShowGridLines="False"/>
+                            </chart:SfChart.PrimaryAxis>
+
+                            <chart:SfChart.SecondaryAxis>
+                                <chart:NumericalAxis Header="Temperature (In Celsius)"/>
+                            </chart:SfChart.SecondaryAxis>
+
+                            <chart:FastLineSeries EnableAnimation="False" ItemsSource="{Binding DeviceTelemetries}" 
+                                                  XBindingPath="Timestamp" YBindingPath="Temperature" />
+                        </chart:SfChart>
+
+                        <chart:SfChart x:Name="HumidityChart" Margin="10" HorizontalAlignment="Center" 
+                                       Palette="RedChrome" Header="Humidity">
+                            <chart:SfChart.PrimaryAxis>
+                                <chart:DateTimeAxis x:Name="datetime" Header="Date" LabelFormat="HH:mm:ss.fff"
+                                    IntervalType="Seconds" Interval="10" ShowGridLines="False"/>     
+                            </chart:SfChart.PrimaryAxis>
+
+                            <chart:SfChart.SecondaryAxis>
+                                <chart:NumericalAxis Header="Humidity (In %)"/>
+                            </chart:SfChart.SecondaryAxis>
+
+                            <chart:FastLineSeries EnableAnimation="False" ItemsSource="{Binding DeviceTelemetries}"
+                                                  XBindingPath="Timestamp" YBindingPath="Humidity" />
+                        </chart:SfChart>
+
+                        <!-- Comment this region if you don't have Syncfusion License -->
+                    </StackPanel>
+                </Grid>
             </Grid>
 
             <Grid Name="DeviceFooter" Grid.Row="2">

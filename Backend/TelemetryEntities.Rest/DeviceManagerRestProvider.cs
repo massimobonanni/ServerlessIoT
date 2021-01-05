@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TelemetryEntities.Models;
 
 namespace TelemetryEntities.Rest
 {
@@ -57,7 +58,7 @@ namespace TelemetryEntities.Rest
 
         public async Task<DeviceDetailModel> GetDeviceAsync(string deviceId, CancellationToken token)
         {
-            var uri = this.CreateAPIUri(null,$"api/devices/{deviceId}");
+            var uri = this.CreateAPIUri(null, $"api/devices/{deviceId}");
 
             var response = await this._httpClient.GetAsync(uri, token);
             if (response.IsSuccessStatusCode)
@@ -70,6 +71,24 @@ namespace TelemetryEntities.Rest
             }
             return null;
 
+        }
+
+        public async Task<bool> SetDeviceConfigurationAsync(string deviceId, DeviceConfigurationModel configuration, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(deviceId))
+                throw new ArgumentException(nameof(deviceId));
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            var uri = this.CreateAPIUri(null, $"api/devices/{deviceId}/configuration");
+
+            string configurationJson = JsonConvert.SerializeObject(configuration, Formatting.None);
+
+            var putContent = new StringContent(configurationJson, Encoding.UTF8, "application/json");
+
+            var response = await this._httpClient.PutAsync(uri, putContent , cancellationToken);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

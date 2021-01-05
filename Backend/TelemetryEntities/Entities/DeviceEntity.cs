@@ -69,13 +69,17 @@ namespace TelemetryEntities.Entities
                     HistoryData.Remove(item.Key);
                 }
             }
+        }
 
+        public void SetConfiguration(DeviceEntityConfiguration config)
+        {
+            this.EntityConfig = config;
         }
         #endregion [ Behaviour ]
 
 
         [FunctionName(nameof(DeviceEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext ctx,ILogger logger)
+        public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger logger)
             => ctx.DispatchAsync<DeviceEntity>(logger);
     }
 }

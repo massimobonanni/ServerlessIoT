@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TelemetryEntities.Models;
 
 namespace ServerlessIoT.Core.Interfaces
 {
@@ -12,5 +13,7 @@ namespace ServerlessIoT.Core.Interfaces
         Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(string filterName, string filterId,CancellationToken token);
 
         Task<DeviceDetailModel> GetDeviceAsync(string deviceId, CancellationToken token);
+
+        Task<bool> SetDeviceConfigurationAsync(string deviceId,DeviceConfigurationModel configuration, CancellationToken cancellationToken);
     }
 }
