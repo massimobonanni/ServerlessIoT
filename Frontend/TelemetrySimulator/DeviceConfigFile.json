@@ -6,11 +6,11 @@
       "id": "paperino",
       "pollingIntervalInSec": 10,
       "temperatureGenerator": {
-        "name": "SinusiodalGenerator",
+        "name": "PeriodicTelemetryGenerator",
         "configuration": {
           "minValue": 0,
           "maxValue": 5,
-          "period": 600
+          "periodInSec": 600
         }
       },
       "humidityGenerator": {

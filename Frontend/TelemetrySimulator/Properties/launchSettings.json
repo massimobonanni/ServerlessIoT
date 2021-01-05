@@ -2,7 +2,7 @@
   "profiles": {
     "TelemetrySimulator": {
       "commandName": "Project",
-      "commandLineArgs": "-f \"d:\\test-1device-noIotHub.json\" -d 60"
+      "commandLineArgs": "-f \"d:\\test-1device-noIotHub.json\" -d 120"
     },
     "Docker": {
       "commandName": "Docker"
