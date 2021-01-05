@@ -17,9 +17,9 @@ To run docker image:
 
 1. Run the command
 
-`docker run -a STDOUT <imageId> -c <IoT event hub-compatible connection string>`
+`docker run -a STDOUT <imageId> <command line argument>`
 
-where `<IoT event hub-compatible connection string>` is the connection string for Event-Hub compatible endpoint of the IoT Hub.
+More info about `<command line options>` on the page [Command Line Arguments](CommandLineArguments.md).
 
 To retrieve the `<imageId>` run the command:
 

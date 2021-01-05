@@ -37,13 +37,13 @@ namespace TelemetryDispatcher
         [Option(
             's',
             "StorageConnectionString",
-            HelpText = "The storage connection string uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
+            HelpText = "The storage connectionstring for storage account uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
         public string StorageConnectionString { get; set; }
 
         [Option(
             'b',
             "BlobContainerName",
-            HelpText = "The blob container name uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
+            HelpText = "The name of blob container uses by the dispatcher to store the offset for messages retrieved from the iot hub.")]
         public string BlobContainerName { get; set; }
 
         [Option(

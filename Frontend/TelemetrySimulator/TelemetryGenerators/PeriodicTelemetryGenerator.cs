@@ -18,6 +18,9 @@ namespace TelemetrySimulator.TelemetryGenerators
 
             [JsonPropertyName("periodInSec")]
             public int PeriodInSec { get; set; } = 60;
+
+            [JsonPropertyName("noisePercentage")]
+            public double NoisePercentage { get; set; }
         }
 
         private DateTime? _startTime;
@@ -35,15 +38,24 @@ namespace TelemetrySimulator.TelemetryGenerators
             }
         }
 
+        private static Random _randGenerator = new Random(DateTime.Now.Millisecond);
+
         public override double GenerateNextValue()
         {
             if (!_startTime.HasValue)
-                _startTime = DateTime.Now;
+                _startTime = DateTime.Now.Subtract(TimeSpan.FromSeconds(_randGenerator.Next(0, 1000)));
 
             var delta = _configuration.MaxValue - _configuration.MinValue;
             var timeFromStart = DateTime.Now.Subtract(_startTime.Value);
             var sinArg = timeFromStart.TotalSeconds * 2.0 * Math.PI / _configuration.PeriodInSec;
-            return delta * (Math.Sin(sinArg) + 1.0) / 2.0 + _configuration.MinValue;
+            var retVal = delta * (Math.Sin(sinArg) + 1.0) / 2.0 + _configuration.MinValue;
+            if (_configuration.NoisePercentage > 0)
+            {
+                var randSign = (2 * Math.Sign(_randGenerator.Next(-1, 1)) + 1);
+                var randNoise = _randGenerator.NextDouble() * _configuration.NoisePercentage / 100.0;
+                retVal = retVal + randSign * randNoise * (_configuration.MaxValue - _configuration.MinValue) / 2;
+            }
+            return retVal;
         }
     }
 }
