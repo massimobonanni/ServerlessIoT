@@ -9,8 +9,8 @@ namespace ServerlessIoT.Core.Interfaces
 {
     public interface IDeviceManager
     {
-        Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(CancellationToken token);
+        Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(string filterName, string filterId,CancellationToken token);
 
-        Task<DeviceInfoModel> GetDeviceAsync(string deviceId, CancellationToken token);
+        Task<DeviceDetailModel> GetDeviceAsync(string deviceId, CancellationToken token);
     }
 }

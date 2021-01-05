@@ -20,7 +20,7 @@ namespace TelemetryEntities.Rest
 
         }
 
-        protected override string BaseEndpoint => "api/deviceTelemetries";
+        protected override string DefaultApiEndpoint => "api/deviceTelemetries";
 
         public async Task<bool> SendTelemetryToDeviceAsync(DeviceTelemetry telemetry, CancellationToken cancellationToken)
         {
@@ -38,6 +38,6 @@ namespace TelemetryEntities.Rest
             return response.IsSuccessStatusCode;
         }
 
-        
+
     }
 }

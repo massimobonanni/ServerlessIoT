@@ -8,31 +8,100 @@
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
         Title="MainWindow" Height="600" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid Visibility="{Binding Path=SearchPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <Grid  Margin="10" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Margin="0,0,10,0" Grid.Column="0">Search device by Name :</Label>
+                <TextBox Text="{Binding Path=DeviceNameFilter,UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="0,0,10,0"></TextBox>
+                <StackPanel Orientation="Horizontal" Grid.Column="2">
+                    <Button Command="{Binding Path=SearchDeviceCommand}">Search</Button>
+                </StackPanel>
+            </Grid>
 
-        <Grid  Margin="10" Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Label Margin="0,0,10,0" Grid.Column="0">Telemetry API Url :</Label>
-            <TextBlock Text="{Binding Path=ApiURL,UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="0,0,10,0"></TextBlock>
-            <StackPanel Orientation="Horizontal" Grid.Column="2">
-                <Button Command="{Binding Path=StartTelemetryVisualization}">Start</Button>
-                <Button Command="{Binding Path=StopTelemetryVisualization}">Stop</Button>
-            </StackPanel>
+            <DataGrid Grid.Row="1" AutoGenerateColumns="false" ItemsSource="{Binding Path=Devices}" Margin="10"
+                      SelectedItem="{Binding Path=SelectedDevice}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                      SelectionMode="Single">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Id" Binding="{Binding Path=DeviceId}"/>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Path=DeviceName}"/>
+                    <DataGridTextColumn Header="Last Update" Binding="{Binding Path=LastTelemetry.Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                    <DataGridTextColumn Header="Temperature" Binding="{Binding Path=LastTelemetry.Temperature}"/>
+                    <DataGridTextColumn Header="Humidity" Binding="{Binding Path=LastTelemetry.Humidity}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Button Command="{Binding Path=ShowTelemetryCommand}" Grid.Row="2" Margin="10">Show Telemetry</Button>
+
+            <Grid Grid.Row="0" Grid.RowSpan="3" Background="White" Opacity="0.6" 
+                  Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ProgressBar Width="300" Height="50" IsIndeterminate="{Binding Path=IsBusy}"
+                             IsEnabled="{Binding Path=IsBusy}"/>
+            </Grid>
         </Grid>
 
-        <DataGrid Grid.Row="1" AutoGenerateColumns="false" ItemsSource="{Binding Path=Devices}" Margin="10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="DeviceId" Binding="{Binding Path=DeviceId}"/>
-                <DataGridTextColumn Header="Last Update" Binding="{Binding Path=LastTelemetry.Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
-                <DataGridTextColumn Header="Temperature" Binding="{Binding Path=LastTelemetry.Temperature}"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Visibility="{Binding Path=DevicePanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="70"/>
+            </Grid.RowDefinitions>
+
+            <Grid Name="DeviceHeader" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Margin="10,10,10,0" VerticalAlignment="Center">
+                    <Run Text="Device ID: "/>
+                    <Run Text="{Binding Path=TelemetryDeviceID}" FontWeight="DemiBold"/>
+                </TextBlock>
+
+                <TextBlock Grid.Row="1" Margin="10,10,10,0" VerticalAlignment="Center">
+                    <Run Text="Device Name: "/>
+                    <Run Text="{Binding Path=TelemetryDeviceName}" FontWeight="DemiBold"/>
+                </TextBlock>
+
+                <TextBlock Grid.Row="2" Margin="10" VerticalAlignment="Center">
+                    <Run Text="Last Update:: "/>
+                    <Run Text="{Binding Path=TelemetryDeviceLastUpdate,StringFormat={}{0:dd/MM/yyyy HH:mm:ss.fff}}" FontWeight="DemiBold"/>
+                </TextBlock>
+
+            </Grid>
+
+            <Grid Name="DeviceTelemetries" Grid.Row="1">
+
+                <DataGrid AutoGenerateColumns="false" ItemsSource="{Binding Path=DeviceTelemetries}" Margin="10"
+                      CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                      SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Last Update" Binding="{Binding Path=Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss.fff}}"/>
+                        <DataGridTextColumn Header="Temperature" Binding="{Binding Path=Temperature}"/>
+                        <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+            <Grid Name="DeviceFooter" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <Button Margin="10" Grid.Column="0" Command="{Binding Path=HideTelemetryCommand}" VerticalAlignment="Center">Back</Button>
+                <Image Grid.Column="1" Margin="10" Width="50" Height="50" 
+                       Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}" Source="/TelemetryDashboard.WPF;component/Resources/Green_sphere.png"></Image>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

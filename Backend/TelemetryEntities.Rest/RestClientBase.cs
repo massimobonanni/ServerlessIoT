@@ -5,7 +5,7 @@ namespace StatefulPatternFunctions.Rest
 {
     public abstract class RestClientBase
     {
-        protected virtual string BaseEndpoint { get; }
+        protected virtual string DefaultApiEndpoint { get; }
 
         protected readonly HttpClient _httpClient;
         protected readonly string _baseUrl;
@@ -20,19 +20,24 @@ namespace StatefulPatternFunctions.Rest
             this._apiKey = apiKey;
         }
 
-        protected virtual Uri CreateAPIUri(string apiEndpoint = null)
+        protected virtual string GetFullUrl()
         {
-            string url;
+            return $"{this._baseUrl}/{this.DefaultApiEndpoint}";
+        }
 
-            if (string.IsNullOrWhiteSpace(apiEndpoint))
+
+        protected virtual Uri CreateAPIUri(string queryString = null, string overrideApiEndpoint = null)
+        {
+            string url=this.GetFullUrl();
+
+            if (!string.IsNullOrEmpty(overrideApiEndpoint))
+                url = $"{this._baseUrl}/{overrideApiEndpoint}";
+
+            if (!string.IsNullOrWhiteSpace(queryString))
             {
-                url = $"{this._baseUrl}/{this.BaseEndpoint}";
-            }
-            else
-            {
-                if (apiEndpoint.StartsWith("/"))
-                    apiEndpoint = apiEndpoint.Remove(0, 1);
-                url = $"{this._baseUrl}/{apiEndpoint}";
+                if (queryString.StartsWith("?"))
+                    queryString = queryString.Remove(0, 1);
+                url = $"{url}?{queryString}";
             }
 
             if (!string.IsNullOrWhiteSpace(this._apiKey))

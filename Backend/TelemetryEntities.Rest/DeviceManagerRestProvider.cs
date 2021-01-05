@@ -21,11 +21,28 @@ namespace TelemetryEntities.Rest
 
         }
 
-        protected override string BaseEndpoint => "api/devices";
+        protected override string DefaultApiEndpoint => "api/devices";
 
-        public async Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(CancellationToken token)
+        public async Task<IEnumerable<DeviceInfoModel>> GetDevicesAsync(string filterName, string filterId, CancellationToken token)
         {
-            var uri = this.CreateAPIUri();
+            string query = string.Empty;
+            if (!string.IsNullOrEmpty(filterName))
+            {
+                query += $"name={filterName}";
+            }
+            if (!string.IsNullOrEmpty(filterId))
+            {
+                if (query != null)
+                    query += $"&";
+                query += $"id={filterId}";
+            }
+
+            Uri uri;
+            if (!string.IsNullOrEmpty(query))
+                uri = this.CreateAPIUri($"{query}");
+            else
+                uri = this.CreateAPIUri();
+
             var response = await this._httpClient.GetAsync(uri, token);
             if (response.IsSuccessStatusCode)
             {
@@ -38,16 +55,16 @@ namespace TelemetryEntities.Rest
             return null;
         }
 
-        public async Task<DeviceInfoModel> GetDeviceAsync(string deviceId, CancellationToken token)
+        public async Task<DeviceDetailModel> GetDeviceAsync(string deviceId, CancellationToken token)
         {
-            var uri = this.CreateAPIUri($"{deviceId}");
+            var uri = this.CreateAPIUri(null,$"api/devices/{deviceId}");
 
             var response = await this._httpClient.GetAsync(uri, token);
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
 
-                var profile = JsonConvert.DeserializeObject<DeviceInfoModel>(content);
+                var profile = JsonConvert.DeserializeObject<DeviceDetailModel>(content);
 
                 return profile;
             }
