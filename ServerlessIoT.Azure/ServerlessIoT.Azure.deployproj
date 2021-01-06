@@ -29,6 +29,10 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <None Include="README.md" />
+    <None Include="Scripts\New-Environment.md" />
+    <None Include="Scripts\New-Environment.ps1" />
+    <None Include="Scripts\Add-SimulatorDevices.md" />
     <None Include="Scripts\Add-SimulatorDevices.ps1" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
