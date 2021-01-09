@@ -223,7 +223,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                     {
                         if (device != null)
                         {
-                            this.TelemetryDeviceLastUpdate = device.LastTelemetry.Timestamp;
+                            this.TelemetryDeviceLastUpdate = device.LastTelemetry.Timestamp.ToLocalTime();
                             this.TelemetryDeviceName = device.DeviceName;
 
                             var orderedTelemetry = device.TelemetryHistory

@@ -11,11 +11,6 @@
     [string] $FunctionAppName
 )
 
-# EventHubConnectionString --> iothubname
-# BlobName --> creato
-# StorageConnectionString --> StorageAccount
-# EntitiesBaseAPIUrl --> FunctionAppName
- 
 Import-Module Az.Resources
 Import-Module Az.Functions
 Import-Module Az.IotHub

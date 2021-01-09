@@ -30,6 +30,9 @@
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
     <None Include="README.md" />
+    <None Include="Scripts\Deploy-TelemetrySimulatorACI.md" />
+    <None Include="Scripts\Deploy-TelemetrySimulatorACI.ps1" />
+    <None Include="Scripts\Deploy-TelemetryDispatcherACI.md" />
     <None Include="Scripts\Deploy-TelemetryDispatcherACI.ps1" />
     <None Include="Scripts\New-Environment.md" />
     <None Include="Scripts\New-Environment.ps1" />

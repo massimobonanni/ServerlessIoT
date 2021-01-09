@@ -5,6 +5,9 @@
 *.local.txt
 local.*.txt
 
+# Launch Settings 
+launchSettings.json
+
 # Azure Functions localsettings file
 local.settings.json
 

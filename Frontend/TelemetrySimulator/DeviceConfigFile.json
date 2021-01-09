@@ -10,7 +10,8 @@
         "configuration": {
           "minValue": 0,
           "maxValue": 5,
-          "periodInSec": 600
+          "periodInSec": 600,
+          "noisePercentage" : 1.0
         }
       },
       "humidityGenerator": {
