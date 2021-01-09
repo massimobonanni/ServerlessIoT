@@ -23,10 +23,8 @@ namespace TelemetryDashboard.WPF
             SimpleIoc.Default.Register(() => new HttpClient());
             SimpleIoc.Default.Register<IDeviceManager>(() =>
             {
-                string baseUrl = "http://localhost:7071";
-                string apiKey = null;
                 var httpClient = SimpleIoc.Default.GetInstance<HttpClient>();
-                return new DeviceManagerRestProvider(httpClient, baseUrl, apiKey);
+                return new DeviceManagerRestProvider(httpClient, App.Parameters.APIUrl, App.Parameters.APIKey);
             });
 
             SimpleIoc.Default.Register<MainViewModel>();
