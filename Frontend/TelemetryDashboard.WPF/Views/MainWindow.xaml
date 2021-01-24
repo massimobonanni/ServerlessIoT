@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TelemetryDashboard.WPF" xmlns:chart="clr-namespace:Syncfusion.UI.Xaml.Charts;assembly=Syncfusion.SfChart.WPF"
         mc:Ignorable="d"
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
-        Title="MainWindow" Height="800" Width="1000">
+        Title="{Binding Path=ViewTitle}" Height="800" Width="1000">
     <Grid>
         <Grid Visibility="{Binding Path=SearchPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetrySimulator.TelemetryGenerators
 {
@@ -11,6 +13,6 @@ namespace TelemetrySimulator.TelemetryGenerators
 
         }
 
-        public abstract double GenerateNextValue();
+        public abstract Task<double> GenerateNextValueAsync(CancellationToken token);
     }
 }

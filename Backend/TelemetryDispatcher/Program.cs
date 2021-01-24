@@ -44,6 +44,11 @@ namespace TelemetryDispatcher
                 _parameters.EntitiesAPIUrl, _parameters.EntitiesAPIKey);
 
             Console.WriteLine("Read device to cloud messages. Ctrl-C to exit.\n");
+            Console.WriteLine("IotHub connection string : " + _parameters.GetEventHubConnectionString());
+            Console.WriteLine("Storage connection string : " + _parameters.StorageConnectionString);
+            Console.WriteLine("Offset container name : " + _parameters.BlobContainerName);
+            Console.WriteLine("Device API Url : " + _parameters.EntitiesAPIUrl);
+            Console.WriteLine("Device API Key : " + _parameters.EntitiesAPIKey);
 
             using var cts = new CancellationTokenSource();
             Console.CancelKeyPress += (sender, eventArgs) =>
@@ -125,7 +130,8 @@ namespace TelemetryDispatcher
             {
                 try
                 {
-                    await _telemetryManager.SendTelemetryToDeviceAsync(deviceTelemetry, ct);
+                    if (await _telemetryManager.SendTelemetryToDeviceAsync(deviceTelemetry, ct))
+                        await eventArgs.UpdateCheckpointAsync(ct);
                 }
                 catch (Exception ex)
                 {

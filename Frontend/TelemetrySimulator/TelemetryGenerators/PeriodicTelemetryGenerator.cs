@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetrySimulator.TelemetryGenerators
 {
@@ -40,7 +42,7 @@ namespace TelemetrySimulator.TelemetryGenerators
 
         private static Random _randGenerator = new Random(DateTime.Now.Millisecond);
 
-        public override double GenerateNextValue()
+        public override Task<double> GenerateNextValueAsync(CancellationToken token)
         {
             if (!_startTime.HasValue)
                 _startTime = DateTime.Now.Subtract(TimeSpan.FromSeconds(_randGenerator.Next(0, 1000)));
@@ -55,7 +57,7 @@ namespace TelemetrySimulator.TelemetryGenerators
                 var randNoise = _randGenerator.NextDouble() * _configuration.NoisePercentage / 100.0;
                 retVal = retVal + randSign * randNoise * (_configuration.MaxValue - _configuration.MinValue) / 2;
             }
-            return retVal;
+            return Task.FromResult(retVal);
         }
     }
 }

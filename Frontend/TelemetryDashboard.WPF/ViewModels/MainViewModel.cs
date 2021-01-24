@@ -65,6 +65,11 @@ namespace TelemetryDashboard.WPF.ViewModels
             }
         }
 
+        public string ViewTitle
+        {
+            get => $"Telemetry Dashboard - [{App.Parameters.APIUrl}]";
+        }
+
         private string _telemetryDeviceID;
         public string TelemetryDeviceID
         {

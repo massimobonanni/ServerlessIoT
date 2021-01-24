@@ -151,8 +151,8 @@ namespace TelemetrySimulator
                     Timestamp = DateTimeOffset.Now,
                     Data = new DeviceData()
                     {
-                        Humidity = humidityGenerator.GenerateNextValue(),
-                        Temperature = temperatureGenerator.GenerateNextValue()
+                        Humidity = await humidityGenerator.GenerateNextValueAsync(ct),
+                        Temperature = await temperatureGenerator.GenerateNextValueAsync(ct)
                     }
                 };
 

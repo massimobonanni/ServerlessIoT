@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetrySimulator.TelemetryGenerators
 {
@@ -32,10 +34,10 @@ namespace TelemetrySimulator.TelemetryGenerators
             }
         }
 
-        public override double GenerateNextValue()
+        public override Task<double> GenerateNextValueAsync(CancellationToken token)
         {
             var delta = _configuration.MaxValue - _configuration.MinValue;
-            return _configuration.MinValue + _randGenerator.NextDouble() * delta;
+            return Task.FromResult(_configuration.MinValue + _randGenerator.NextDouble() * delta);
         }
     }
 }

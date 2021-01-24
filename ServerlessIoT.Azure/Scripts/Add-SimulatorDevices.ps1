@@ -29,7 +29,7 @@ For ($i=0; $i -le $DeviceNumber; $i++) {
 
     Write-Host "Retrieving ConnectionString for device '"$deviceName"'"
 
-    $connection = Get-AzIotHubDeviceConnectionString -ResourceGroupName iothubdemo-rg -IotHubName iotmaxdemo -DeviceId testmax
+    $connection = Get-AzIotHubDeviceConnectionString -ResourceGroupName $ResourceGroup -IotHubName $IotHubName -DeviceId $deviceName
 
     Write-Host "ConnectionString : "$connection.ConnectionString
 

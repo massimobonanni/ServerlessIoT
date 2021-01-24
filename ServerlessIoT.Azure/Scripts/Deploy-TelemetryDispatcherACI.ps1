@@ -8,7 +8,9 @@
     [Parameter(Mandatory = $true, HelpMessage = "StorageAccount name used by the dispatcher to save offset for iothub events")]
     [string] $StorageAccountName,
     [Parameter(Mandatory = $true, HelpMessage = "Function App name contains the Durable Entities")]
-    [string] $FunctionAppName
+    [string] $FunctionAppName,
+    [Parameter(HelpMessage = "Function App key for Durable Entities")]
+    [string] $FunctionAppKey = ""
 )
 
 Import-Module Az.Resources
@@ -19,7 +21,7 @@ Import-Module Az.Storage
 $dateNamePart = (Get-Date -Format "yyyyMMddHHmmss" | % {[string]$_})
 
 $aciName="telemetrydispatcher" + $dateNamePart
-$containerImage="massimobonanni/telemetrydispatcher:v2.0"
+$containerImage="massimobonanni/telemetrydispatcher:v2.1"
 
 $storageBlobName="offset"+$dateNamePart
 
@@ -38,10 +40,14 @@ $storageKey=(Get-AzStorageAccountKey -ResourceGroupName $ResourceGroup -Name $St
 $storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + $StorageAccountName +";AccountKey=" + $storageKey +";EndpointSuffix=core.windows.net"
 
 Write-Host "Retrieving Function App data '"$FunctionAppName"'"
-$functionAppUrl= "https://"+ $FunctionAppName +"azurewebsites.net"
+$functionAppUrl= "https://"+ $FunctionAppName +".azurewebsites.net"
 
 Write-Host "Deploying ACI '"$aciName"'"
-$containerCommand="dotnet TelemetryDispatcher.dll -c '"+ $EventHubConnectionString +"' -b '"+$storageBlobName+"' -s '"+$storageConnectionString+"' -u '"+$functionAppUrl +"'"
+if ($FunctionAppKey -eq "")
+    $containerCommand="dotnet TelemetryDispatcher.dll -c '"+ $EventHubConnectionString +"' -b '"+$storageBlobName+"' -s '"+$storageConnectionString+"' -u '"+$functionAppUrl +"'"
+else
+    $containerCommand="dotnet TelemetryDispatcher.dll -c '"+ $EventHubConnectionString +"' -b '"+$storageBlobName+"' -s '"+$storageConnectionString+"' -u '"+$functionAppUrl +"' -k "+$FunctionAppKey 
+
 New-AzContainerGroup -ResourceGroupName $ResourceGroup -Name $aciName -Image $containerImage -Location $iothub.Location -OsType Linux -Command $containerCommand -Cpu 4 -MemoryInGB 8
 
 Get-AzContainerGroup -ResourceGroupName $ResourceGroup -name $aciName
