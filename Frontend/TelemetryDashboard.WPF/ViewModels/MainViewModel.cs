@@ -1,5 +1,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Messaging;
 using ServerlessIoT.Core.Interfaces;
 using ServerlessIoT.Core.Models;
 using System;
@@ -8,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using TelemetryDashboard.WPF.Messages;
 using TelemetryDashboard.WPF.Models;
 using DeviceTelemetryModel = TelemetryDashboard.WPF.Models.DeviceTelemetryModel;
 
@@ -170,6 +172,31 @@ namespace TelemetryDashboard.WPF.ViewModels
                         });
                 }
                 return _showTelemetryCommand;
+            }
+        }
+
+        private RelayCommand _configureDeviceCommand;
+        public RelayCommand ConfigureDeviceCommand
+        {
+            get
+            {
+                if (_configureDeviceCommand == null)
+                {
+                    _configureDeviceCommand = new RelayCommand(
+                        () =>
+                        {
+                            Messenger.Default.Send(new OpenWindowMessage()
+                            {
+                                WindowToOpen = WindowNames.DeviceConfiguration,
+                                Parameter = this.SelectedDevice
+                            });
+                        },
+                        () =>
+                        {
+                            return this.SelectedDevice != null;
+                        });
+                }
+                return _configureDeviceCommand;
             }
         }
 

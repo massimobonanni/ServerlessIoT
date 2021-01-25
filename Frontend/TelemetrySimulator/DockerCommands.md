@@ -1,4 +1,5 @@
-﻿# Docker Commands
+﻿docker images
+# Docker Commands
 
 ## Create docker image
 
