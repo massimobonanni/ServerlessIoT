@@ -13,11 +13,11 @@ using TelemetryEntities.Models;
 namespace TelemetryEntities.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class DeviceEntity
+    public class StandardDeviceEntity : IDeviceEntity
     {
         private readonly ILogger logger;
 
-        public DeviceEntity(ILogger logger)
+        public StandardDeviceEntity(ILogger logger)
         {
             this.logger = logger;
             this.EntityConfig = new DeviceEntityConfiguration();
@@ -38,7 +38,6 @@ namespace TelemetryEntities.Entities
 
         [JsonProperty("lastData")]
         public DeviceData LastData { get; set; }
-
         #endregion [ State ]
 
         #region [ Behaviour ]
@@ -51,7 +50,7 @@ namespace TelemetryEntities.Entities
                 return;
 
             HistoryData[telemetry.Timestamp] = telemetry.Data;
-
+            
             if (LastUpdate < telemetry.Timestamp)
             {
                 LastUpdate = telemetry.Timestamp;
@@ -77,9 +76,8 @@ namespace TelemetryEntities.Entities
         }
         #endregion [ Behaviour ]
 
-
-        [FunctionName(nameof(DeviceEntity))]
+        [FunctionName(nameof(StandardDeviceEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger logger)
-            => ctx.DispatchAsync<DeviceEntity>(logger);
+            => ctx.DispatchAsync<StandardDeviceEntity>(logger);
     }
 }

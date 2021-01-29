@@ -16,11 +16,19 @@ using System.Threading.Tasks;
 using TelemetryEntities.Entities;
 using TelemetryEntities.Filters;
 using TelemetryEntities.Models;
+using TelemetryEntities.Services;
 
 namespace TelemetryEntities
 {
     public class DeviceEntityManagement
     {
+        private readonly IEntityFactory _entityfactory;
+
+        public DeviceEntityManagement(IEntityFactory entityFactory)
+        {
+            this._entityfactory = entityFactory;
+        }
+
         [FunctionName(nameof(SendTelemetryToDevice))]
         public async Task<IActionResult> SendTelemetryToDevice(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "deviceTelemetries")] HttpRequest req,
@@ -30,16 +38,15 @@ namespace TelemetryEntities
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(requestBody);
 
-            var entityId = new EntityId(nameof(DeviceEntity), telemetry.DeviceId);
+            var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
 
-            await client.SignalEntityAsync(entityId,
-                   nameof(DeviceEntity.TelemetryReceived), telemetry);
+            await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
 
             return new OkObjectResult(telemetry);
         }
 
         [FunctionName(nameof(GetDevices))]
-        public static async Task<IActionResult> GetDevices(
+        public async Task<IActionResult> GetDevices(
           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "devices")] HttpRequest req,
           [DurableClient] IDurableEntityClient client)
         {
@@ -49,7 +56,6 @@ namespace TelemetryEntities
 
             var queryDefinition = new EntityQuery()
             {
-                EntityName = nameof(DeviceEntity),
                 PageSize = 100,
                 FetchState = true
             };
@@ -72,12 +78,13 @@ namespace TelemetryEntities
         }
 
         [FunctionName(nameof(GetDevice))]
-        public static async Task<IActionResult> GetDevice(
+        public async Task<IActionResult> GetDevice(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "devices/{deviceId}")] HttpRequest req,
             string deviceId,
             [DurableClient] IDurableEntityClient client)
         {
-            var entityId = new EntityId(nameof(DeviceEntity), deviceId);
+
+            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
 
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
             if (entity.EntityExists)
@@ -90,7 +97,7 @@ namespace TelemetryEntities
         }
 
         [FunctionName(nameof(SetConfiguration))]
-        public static async Task<IActionResult> SetConfiguration(
+        public async Task<IActionResult> SetConfiguration(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = "devices/{deviceId}/configuration")] HttpRequest req,
             string deviceId,
             [DurableClient] IDurableEntityClient client)
@@ -99,10 +106,10 @@ namespace TelemetryEntities
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var configuration = JsonConvert.DeserializeObject<DeviceEntityConfiguration>(requestBody);
 
-            var entityId = new EntityId(nameof(DeviceEntity), deviceId);
+            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
 
-            await client.SignalEntityAsync(entityId,
-                   nameof(DeviceEntity.SetConfiguration), configuration);
+            //await client.SignalEntityAsync(entityId,nameof(DeviceEntity.SetConfiguration), configuration);
+            await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.SetConfiguration(configuration));
 
             return new OkObjectResult(configuration);
         }
