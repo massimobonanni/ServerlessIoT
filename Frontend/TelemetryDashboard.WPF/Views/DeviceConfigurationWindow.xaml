@@ -10,6 +10,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -19,9 +22,24 @@
             <TextBox Width="100" Margin="10" Text="{Binding Path=RetentionHistory,UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </StackPanel>
 
-        <Button Grid.Row="2" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Label Margin="10,10,0,10">High temperature notification threshold (in degrees):</Label>
+            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureHighThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
 
-        <Grid Grid.Row="0" Grid.RowSpan="3" Background="White" Opacity="0.6" 
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Label Margin="10,10,0,10">Low temperature notification threshold (in degrees):</Label>
+            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureLowThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal">
+            <Label Margin="10,10,0,10">Notification number</Label>
+            <TextBox Width="200" Margin="10" Text="{Binding Path=NotificationNumber,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
+
+        <Button Grid.Row="5" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
+
+        <Grid Grid.Row="0" Grid.RowSpan="6" Background="White" Opacity="0.6" 
                   Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}">
             <ProgressBar Width="300" Height="50" IsIndeterminate="{Binding Path=IsBusy}"
                              IsEnabled="{Binding Path=IsBusy}"/>

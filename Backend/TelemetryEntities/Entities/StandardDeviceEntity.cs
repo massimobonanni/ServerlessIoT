@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TelemetryEntities.Externals;
 using TelemetryEntities.Models;
 
 namespace TelemetryEntities.Entities
@@ -38,6 +39,12 @@ namespace TelemetryEntities.Entities
 
         [JsonProperty("lastData")]
         public DeviceData LastData { get; set; }
+
+        [JsonProperty("temperatureHighNotificationFired")]
+        public bool TemperatureHighNotificationFired { get; set; } = false;
+
+        [JsonProperty("temperatureLowNotificationFired")]
+        public bool TemperatureLowNotificationFired { get; set; } = false;
         #endregion [ State ]
 
         #region [ Behaviour ]
@@ -50,7 +57,7 @@ namespace TelemetryEntities.Entities
                 return;
 
             HistoryData[telemetry.Timestamp] = telemetry.Data;
-            
+
             if (LastUpdate < telemetry.Timestamp)
             {
                 LastUpdate = telemetry.Timestamp;
@@ -58,8 +65,74 @@ namespace TelemetryEntities.Entities
                 DeviceName = telemetry.DeviceName;
             }
 
+            ClearHistoryData();
+            CheckAlert();
+        }
+
+        public void SetConfiguration(DeviceEntityConfiguration config)
+        {
+            this.EntityConfig = config;
+        }
+        #endregion [ Behaviour ]
+
+        #region [ Private Methods ]
+        private void CheckAlert()
+        {
+            if (this.EntityConfig.TemperatureHighAlertEnabled())
+            {
+                if (!this.TemperatureHighNotificationFired)
+                {
+                    if (this.LastData.Temperature > this.EntityConfig.TemperatureHighThreshold)
+                    {
+                        Entity.Current.StartNewOrchestration(nameof(Orchestrators.SendNotification),
+                            new Orchestrators.NotificationData()
+                            {
+                                DeviceName = this.DeviceName,
+                                NotificationNumber = this.EntityConfig.NotificationNumber
+                            });
+
+                        this.TemperatureHighNotificationFired = true;
+                    }
+                }
+                else
+                {
+                    if (this.LastData.Temperature < this.EntityConfig.TemperatureHighThreshold)
+                    {
+                        this.TemperatureHighNotificationFired = false;
+                    }
+                }
+            }
+
+            if (this.EntityConfig.TemperatureLowAlertEnabled())
+            {
+                if (!this.TemperatureLowNotificationFired)
+                {
+                    if (this.LastData.Temperature < this.EntityConfig.TemperatureLowThreshold)
+                    {
+                        Entity.Current.StartNewOrchestration(nameof(Orchestrators.SendNotification),
+                            new Orchestrators.NotificationData()
+                            {
+                                DeviceName = this.DeviceName,
+                                NotificationNumber = this.EntityConfig.NotificationNumber
+                            });
+
+                        this.TemperatureLowNotificationFired = true;
+                    }
+                }
+                else
+                {
+                    if (this.LastData.Temperature > this.EntityConfig.TemperatureLowThreshold)
+                    {
+                        this.TemperatureLowNotificationFired = false;
+                    }
+                }
+            }
+        }
+
+        private void ClearHistoryData()
+        {
             var dataToRemove = HistoryData
-                .Where(a => a.Key < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention));
+                 .Where(a => a.Key < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention));
 
             if (dataToRemove.Any())
             {
@@ -69,12 +142,7 @@ namespace TelemetryEntities.Entities
                 }
             }
         }
-
-        public void SetConfiguration(DeviceEntityConfiguration config)
-        {
-            this.EntityConfig = config;
-        }
-        #endregion [ Behaviour ]
+        #endregion [ Private Methods ]
 
         [FunctionName(nameof(StandardDeviceEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger logger)

@@ -162,7 +162,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                         {
                             this.TelemetryDeviceID = this.SelectedDevice.DeviceId;
                             this.TelemetryDeviceName = this.SelectedDevice.DeviceName;
-                            this.TelemetryDeviceLastUpdate = this.SelectedDevice.LastTelemetry.Timestamp;
+                            this.TelemetryDeviceLastUpdate = this.SelectedDevice.LastTelemetry == null ? DateTimeOffset.MinValue : this.SelectedDevice.LastTelemetry.Timestamp;
                             this.SearchPanelVisible = false;
                             this._devicesUpdateWorker.RunWorkerAsync();
                         },
@@ -255,20 +255,24 @@ namespace TelemetryDashboard.WPF.ViewModels
                     {
                         if (device != null)
                         {
-                            this.TelemetryDeviceLastUpdate = device.LastTelemetry.Timestamp.ToLocalTime();
+                            this.TelemetryDeviceLastUpdate = device.LastTelemetry == null ? DateTimeOffset.MinValue.ToLocalTime() : device.LastTelemetry.Timestamp.ToLocalTime();
                             this.TelemetryDeviceName = device.DeviceName;
 
-                            var orderedTelemetry = device.TelemetryHistory
-                                .Select(t => new DeviceTelemetryModel()
-                                {
-                                    Timestamp = t.Timestamp.LocalDateTime,
-                                    Humidity = t.Humidity,
-                                    Temperature = t.Temperature
-                                })
-                                .OrderByDescending(t => t.Timestamp);
+                            if (device.TelemetryHistory != null)
+                            {
+                                var orderedTelemetry = device.TelemetryHistory
+                                    .Select(t => new DeviceTelemetryModel()
+                                    {
+                                        Timestamp = t.Timestamp.LocalDateTime,
+                                        Humidity = t.Humidity,
+                                        Temperature = t.Temperature
+                                    })
+                                    .OrderByDescending(t => t.Timestamp);
 
-                            this.DeviceTelemetries = new ObservableCollection<DeviceTelemetryModel>(orderedTelemetry);
-
+                                this.DeviceTelemetries = new ObservableCollection<DeviceTelemetryModel>(orderedTelemetry);
+                            }
+                            else
+                                this.DeviceTelemetries = null;
                         }
                         this.IsBusy = false;
                     }

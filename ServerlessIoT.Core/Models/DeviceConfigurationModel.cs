@@ -9,5 +9,14 @@ namespace TelemetryEntities.Models
     {
         [JsonProperty("historyRetention")]
         public TimeSpan HistoryRetention { get; set; } = TimeSpan.FromMinutes(10);
+
+        [JsonProperty("temperatureHighThreshold")]
+        public double? TemperatureHighThreshold { get; set; }
+
+        [JsonProperty("temperatureLowThreshold")]
+        public double? TemperatureLowThreshold { get; set; }
+
+        [JsonProperty("notificationNumber")]
+        public string NotificationNumber { get; set; }
     }
 }

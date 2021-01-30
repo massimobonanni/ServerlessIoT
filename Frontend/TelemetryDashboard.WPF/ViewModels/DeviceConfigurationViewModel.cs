@@ -53,13 +53,46 @@ namespace TelemetryDashboard.WPF.ViewModels
             }
         }
 
-        private int _retentionHistory;
-        public int RetentionHistory
+        private string _retentionHistory;
+        public string RetentionHistory
         {
             get => this._retentionHistory;
             set
             {
                 _retentionHistory = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        private string _temperatureHighThreshold;
+        public string TemperatureHighThreshold
+        {
+            get => this._temperatureHighThreshold;
+            set
+            {
+                _temperatureHighThreshold = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        private string _temperatureLowThreshold;
+        public string TemperatureLowThreshold
+        {
+            get => this._temperatureLowThreshold;
+            set
+            {
+                _temperatureLowThreshold = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        private string _notificationNumber;
+        public string NotificationNumber
+        {
+            get => this._notificationNumber;
+            set
+            {
+                _notificationNumber = value;
                 this.RaisePropertyChanged();
             }
         }
@@ -84,9 +117,28 @@ namespace TelemetryDashboard.WPF.ViewModels
         private async Task UpdateConfigurationDeviceAsync()
         {
             this.IsBusy = true;
+
+            if (!int.TryParse(this.RetentionHistory, out var retentionHistory))
+                retentionHistory = 60;
+
+            double? temperatureHighThreshold = null;
+            if (double.TryParse(this.TemperatureHighThreshold, out var threshold1))
+            {
+                temperatureHighThreshold = threshold1;
+            }
+
+            double? temperatureLowThreshold = null;
+            if (double.TryParse(this.TemperatureLowThreshold, out var threshold2))
+            {
+                temperatureLowThreshold = threshold2;
+            }
+
             var configuration = new DeviceConfigurationModel()
             {
-                HistoryRetention = TimeSpan.FromSeconds(this.RetentionHistory)
+                HistoryRetention = TimeSpan.FromSeconds(retentionHistory),
+                TemperatureHighThreshold = temperatureHighThreshold,
+                TemperatureLowThreshold = temperatureLowThreshold,
+                NotificationNumber = this.NotificationNumber
             };
 
             await this._deviceManager.SetDeviceConfigurationAsync(this.DeviceId, configuration, default);
