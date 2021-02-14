@@ -142,6 +142,9 @@ namespace TelemetrySimulator
             var temperatureGenerator = TelemetryGeneratorFactory.Create(device.TemperatureGenerator);
             var humidityGenerator = TelemetryGeneratorFactory.Create(device.HumidityGenerator);
 
+            var startupDelay = rand.Next(0, 10000);
+            await Task.Delay(startupDelay,ct);
+
             while (!ct.IsCancellationRequested)
             {
                 var telemetry = new DeviceTelemetry()
