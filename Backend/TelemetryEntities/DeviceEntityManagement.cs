@@ -68,7 +68,7 @@ namespace TelemetryEntities
                 {
                     var device = item.ToDeviceInfoModel();
                     if (filters.IsDeviceValid(device))
-                        result.Add(item.ToDeviceInfoModel());
+                        result.Add(device);
                 }
 
                 queryDefinition.ContinuationToken = queryResult.ContinuationToken;
