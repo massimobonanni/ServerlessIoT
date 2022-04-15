@@ -11,6 +11,22 @@
   "extensions": {
     "durableTask": {
       "hubName": "SIOTHub"
+    },
+    "eventHubs": {
+      "maxEventBatchSize": 10,
+      "batchCheckpointFrequency": 1,
+      "prefetchCount": 300,
+      "initialOffsetOptions": {
+        "type": "fromStart",
+        "enqueuedTimeUtc": ""
+      },
+      "clientRetryOptions": {
+        "mode": "exponential",
+        "tryTimeout": "00:01:00",
+        "delay": "00:00:00.80",
+        "maxDelay": "00:01:00",
+        "maxRetries": 3
+      }
     }
   }
 }

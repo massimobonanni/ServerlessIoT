@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Messaging.EventHubs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -18,6 +19,8 @@ using TelemetryEntities.Filters;
 using TelemetryEntities.Models;
 using TelemetryEntities.Services;
 
+using IoTHubTrigger = Microsoft.Azure.WebJobs.EventHubTriggerAttribute;
+
 namespace TelemetryEntities
 {
     public class DeviceEntityManagement
@@ -27,6 +30,22 @@ namespace TelemetryEntities
         public DeviceEntityManagement(IEntityFactory entityFactory)
         {
             this._entityfactory = entityFactory;
+        }
+
+        [FunctionName(nameof(IoTHubTriggerFunction))]
+        public async Task IoTHubTriggerFunction(
+            [IoTHubTrigger("%IotHubName%", Connection = "IoTHubConnectionAppSetting")] EventData[] eventHubMessages,
+            [DurableClient] IDurableEntityClient client,
+            ILogger logger)
+        {
+            foreach (var message in eventHubMessages)
+            {
+                var messageBody = Encoding.UTF8.GetString(message.EventBody);
+                var telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(messageBody);
+                logger.LogInformation($"Receiving telemetry from device {telemetry.DeviceId} [telemetry timestamp {telemetry.Timestamp}]");
+                var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
+                await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
+            }
         }
 
         [FunctionName(nameof(SendTelemetryToDevice))]
