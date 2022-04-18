@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,6 +50,19 @@ namespace TelemetryEntities
             }
         }
 
+        [OpenApiOperation("sendTelemetryToDevice",
+            new[] { "Telemetries" },
+            Summary = "Send a telemetry to a serverless device",
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiRequestBody("application/json",
+            typeof(DeviceTelemetry),
+            Description = "The telemetry to send to the serverless device",
+            Required = true)]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.OK,
+            "application/json",
+            typeof(DeviceTelemetry),
+            Summary = "The telemetry passed to the request")]
+        
         [FunctionName(nameof(SendTelemetryToDevice))]
         public async Task<IActionResult> SendTelemetryToDevice(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "deviceTelemetries")] HttpRequest req,
@@ -63,6 +78,28 @@ namespace TelemetryEntities
 
             return new OkObjectResult(telemetry);
         }
+
+        [OpenApiOperation("getDevices",
+           new[] { "Devices" },
+           Summary = "Search the devices based on device name or id",
+            Description = "Return the list of devices those match the search criteria.",
+           Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("name",
+            Summary = "Name of the device",
+            Description = "Returns the devices with name taht contains the value.",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Query,
+            Required = false,
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("id",
+            Summary = "Identifier of the device",
+            Description = "Returns the devices with the id that contains the value.",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Query,
+            Required = false,
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.OK,
+            "application/json",
+            typeof(List<DeviceInfoModel>),
+            Summary = "The list of the devices matching the filters")]
 
         [FunctionName(nameof(GetDevices))]
         public async Task<IActionResult> GetDevices(
@@ -95,6 +132,24 @@ namespace TelemetryEntities
 
             return new OkObjectResult(result);
         }
+
+        [OpenApiOperation("getDevice",
+           new[] { "Devices" },
+           Summary = "Get a specific device by id",
+           Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("deviceId",
+            Summary = "Identifier of the device",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Path,
+            Required = true,
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.OK,
+            "application/json",
+            typeof(DeviceDetailModel),
+            Summary = "The info about the device")]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.NotFound,
+            "application/json",
+            typeof(string),
+            Summary = "The device id if the device doesn't exist")]
 
         [FunctionName(nameof(GetDevice))]
         public async Task<IActionResult> GetDevice(
