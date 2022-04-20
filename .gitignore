@@ -352,3 +352,5 @@ MigrationBackup/
 # Personal txt file
 *.local.txt
 local.*.txt
+/Backend/TelemetryEntities/Properties/ServiceDependencies/serverlessiotfuncapp - Zip Deploy
+/Backend/TelemetryEntities/Properties/ServiceDependencies/serverlessiotfuncapp - Zip Deploy

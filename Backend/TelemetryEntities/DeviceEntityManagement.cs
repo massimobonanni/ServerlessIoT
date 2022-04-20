@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ServerlessIoT.Core;
@@ -62,7 +63,11 @@ namespace TelemetryEntities
             "application/json",
             typeof(DeviceTelemetry),
             Summary = "The telemetry passed to the request")]
-        
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
+
         [FunctionName(nameof(SendTelemetryToDevice))]
         public async Task<IActionResult> SendTelemetryToDevice(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "deviceTelemetries")] HttpRequest req,
@@ -100,6 +105,10 @@ namespace TelemetryEntities
             "application/json",
             typeof(List<DeviceInfoModel>),
             Summary = "The list of the devices matching the filters")]
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
 
         [FunctionName(nameof(GetDevices))]
         public async Task<IActionResult> GetDevices(
@@ -150,6 +159,10 @@ namespace TelemetryEntities
             "application/json",
             typeof(string),
             Summary = "The device id if the device doesn't exist")]
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
 
         [FunctionName(nameof(GetDevice))]
         public async Task<IActionResult> GetDevice(
@@ -170,6 +183,32 @@ namespace TelemetryEntities
             return new NotFoundObjectResult(deviceId);
         }
 
+        [OpenApiOperation("setConfiguration",
+           new[] { "Devices" },
+           Summary = "Set the configuration data for a specific device",
+           Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("deviceId",
+            Summary = "Identifier of the device",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Path,
+            Required = true,
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiRequestBody("application/json",
+            typeof(DeviceEntityConfiguration),
+            Description = "The device configuration data to set",
+            Required = true)]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.OK,
+            "application/json",
+            typeof(DeviceEntityConfiguration),
+            Summary = "The device configuration data setted")]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.NotFound,
+            "application/json",
+            typeof(string),
+            Summary = "The device id if the device doesn't exist")]
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
+        
         [FunctionName(nameof(SetConfiguration))]
         public async Task<IActionResult> SetConfiguration(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = "devices/{deviceId}/configuration")] HttpRequest req,
@@ -179,13 +218,16 @@ namespace TelemetryEntities
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var configuration = JsonConvert.DeserializeObject<DeviceEntityConfiguration>(requestBody);
-
+            
             var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
 
-            //await client.SignalEntityAsync(entityId,nameof(DeviceEntity.SetConfiguration), configuration);
-            await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.SetConfiguration(configuration));
-
-            return new OkObjectResult(configuration);
+            var entity = await client.ReadEntityStateAsync<JObject>(entityId);
+            if (entity.EntityExists)
+            {
+                await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.SetConfiguration(configuration));
+                return new OkObjectResult(configuration);
+            }
+            return new NotFoundObjectResult(deviceId);
         }
     }
 
