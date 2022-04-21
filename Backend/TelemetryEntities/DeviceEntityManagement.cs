@@ -43,8 +43,7 @@ namespace TelemetryEntities
         {
             foreach (var message in eventHubMessages)
             {
-                var messageBody = Encoding.UTF8.GetString(message.EventBody);
-                var telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(messageBody);
+                var telemetry = message.ExtractDeviceTelemetry();
                 logger.LogInformation($"Receiving telemetry from device {telemetry.DeviceId} [telemetry timestamp {telemetry.Timestamp}]");
                 var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
                 await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
@@ -208,7 +207,7 @@ namespace TelemetryEntities
             SecuritySchemeType.ApiKey,
             In = OpenApiSecurityLocationType.Query,
             Name = "code")]
-        
+
         [FunctionName(nameof(SetConfiguration))]
         public async Task<IActionResult> SetConfiguration(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = "devices/{deviceId}/configuration")] HttpRequest req,
@@ -218,7 +217,7 @@ namespace TelemetryEntities
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var configuration = JsonConvert.DeserializeObject<DeviceEntityConfiguration>(requestBody);
-            
+
             var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
 
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
