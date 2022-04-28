@@ -8,18 +8,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using TelemetryEntities.Activities;
+using TelemetryEntities.Models;
 
 namespace TelemetryEntities.Orchestrators
 {
     public class NotificationOrchestrator
     {
-        public class NotificationData
-        {
-            public DateTimeOffset Timestamp { get; set; }
-            public string NotificationNumber { get; set; }
-            public string DeviceName { get; set; }
-        }
-
         [FunctionName(nameof(SendNotification))]
         public async Task SendNotification(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
@@ -30,7 +24,7 @@ namespace TelemetryEntities.Orchestrators
             var smsData = new TwilioActivities.SmsData()
             {
                 Destination = notificationdata.NotificationNumber,
-                Message = $"Alert at {notificationdata.Timestamp} from device {notificationdata.DeviceName}"
+                Message = CreateMessageFromNotificationdata(notificationdata)
             };
 
             try
@@ -43,6 +37,22 @@ namespace TelemetryEntities.Orchestrators
             }
         }
 
-
+        private string CreateMessageFromNotificationdata(NotificationData notificationData)
+        {
+            switch (notificationData.Type)
+            {
+                case NotificationType.LowTemperature:
+                    return $"Temperature {notificationData.CurrentValue:0.00} less then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
+                case NotificationType.HighTemperature:
+                    return $"Temperature {notificationData.CurrentValue:0.00} greater then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
+                case NotificationType.LowHumidity:
+                    return $"Humidity {notificationData.CurrentValue:0.00} less then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
+                case NotificationType.HighHumidity:
+                    return $"Humidity {notificationData.CurrentValue:0.00} greater then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
+                case NotificationType.Unknown:
+                default:
+                    return "";
+            }
+        }
     }
 }

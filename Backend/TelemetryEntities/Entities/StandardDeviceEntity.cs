@@ -84,13 +84,7 @@ namespace TelemetryEntities.Entities
                 {
                     if (this.LastData.Temperature > this.EntityConfig.TemperatureHighThreshold)
                     {
-                        Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification),
-                            new NotificationOrchestrator.NotificationData()
-                            {
-                                Timestamp = DateTimeOffset.Now,
-                                DeviceName = this.DeviceName,
-                                NotificationNumber = this.EntityConfig.NotificationNumber
-                            });
+                        Notify(NotificationType.HighTemperature);
 
                         this.TemperatureHighNotificationFired = true;
                     }
@@ -110,13 +104,7 @@ namespace TelemetryEntities.Entities
                 {
                     if (this.LastData.Temperature < this.EntityConfig.TemperatureLowThreshold)
                     {
-                        Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification),
-                            new NotificationOrchestrator.NotificationData()
-                            {
-                                Timestamp = DateTimeOffset.Now,
-                                DeviceName = this.DeviceName,
-                                NotificationNumber = this.EntityConfig.NotificationNumber
-                            });
+                        Notify(NotificationType.LowTemperature);
 
                         this.TemperatureLowNotificationFired = true;
                     }
@@ -143,6 +131,41 @@ namespace TelemetryEntities.Entities
                     HistoryData.Remove(item.Key);
                 }
             }
+        }
+
+        private void Notify(NotificationType notificationType)
+        {
+            var notificatioData = new NotificationData()
+            {
+                Timestamp = DateTimeOffset.Now,
+                DeviceName = this.DeviceName,
+                NotificationNumber = this.EntityConfig.NotificationNumber,
+                Type = notificationType
+            };
+
+            switch (notificationType)
+            {
+                case NotificationType.HighTemperature:
+                    notificatioData.CurrentValue = this.LastData.Temperature;
+                    notificatioData.ThresholdValue = this.EntityConfig.TemperatureHighThreshold;
+                    break;
+                case NotificationType.LowTemperature:
+                    notificatioData.CurrentValue = this.LastData.Temperature;
+                    notificatioData.ThresholdValue = this.EntityConfig.TemperatureLowThreshold;
+                    break;
+                case NotificationType.HighHumidity:
+                    notificatioData.CurrentValue = this.LastData.Humidity;
+                    break;
+                case NotificationType.LowHumidity:
+                    notificatioData.CurrentValue = this.LastData.Humidity;
+                    break;
+                default:
+                case NotificationType.Unknown:
+                    break;
+            }
+
+            Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification), notificatioData);
+
         }
         #endregion [ Private Methods ]
 
