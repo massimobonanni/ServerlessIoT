@@ -8,7 +8,7 @@ using System.Text;
 using Twilio.Types;
 using Microsoft.Extensions.Configuration;
 
-namespace TelemetryEntities.Externals
+namespace TelemetryEntities.Activities
 {
     public class TwilioActivities
     {

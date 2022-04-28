@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TelemetryEntities.Externals;
 using TelemetryEntities.Models;
+using TelemetryEntities.Orchestrators;
 
 namespace TelemetryEntities.Entities
 {
@@ -84,9 +84,10 @@ namespace TelemetryEntities.Entities
                 {
                     if (this.LastData.Temperature > this.EntityConfig.TemperatureHighThreshold)
                     {
-                        Entity.Current.StartNewOrchestration(nameof(Orchestrators.SendNotification),
-                            new Orchestrators.NotificationData()
+                        Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification),
+                            new NotificationOrchestrator.NotificationData()
                             {
+                                Timestamp = DateTimeOffset.Now,
                                 DeviceName = this.DeviceName,
                                 NotificationNumber = this.EntityConfig.NotificationNumber
                             });
@@ -109,9 +110,10 @@ namespace TelemetryEntities.Entities
                 {
                     if (this.LastData.Temperature < this.EntityConfig.TemperatureLowThreshold)
                     {
-                        Entity.Current.StartNewOrchestration(nameof(Orchestrators.SendNotification),
-                            new Orchestrators.NotificationData()
+                        Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification),
+                            new NotificationOrchestrator.NotificationData()
                             {
+                                Timestamp = DateTimeOffset.Now,
                                 DeviceName = this.DeviceName,
                                 NotificationNumber = this.EntityConfig.NotificationNumber
                             });
