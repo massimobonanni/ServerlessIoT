@@ -90,5 +90,25 @@ namespace TelemetryEntities.Rest
 
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<DeviceConfigurationModel> GetDeviceConfigurationAsync(string deviceId, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(deviceId))
+                throw new ArgumentException(nameof(deviceId));
+
+            var uri = this.CreateAPIUri(null, $"api/devices/{deviceId}/configuration");
+
+            var response = await this._httpClient.GetAsync(uri, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                var profile = JsonConvert.DeserializeObject<DeviceConfigurationModel>(content);
+
+                return profile;
+            }
+            return null;
+        }
     }
 }
