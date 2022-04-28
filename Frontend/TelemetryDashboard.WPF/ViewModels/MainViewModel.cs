@@ -30,8 +30,6 @@ namespace TelemetryDashboard.WPF.ViewModels
             _devicesUpdateWorker.DoWork += DevicesUpdateWorker_DoWork;
         }
 
-
-
         #region [ Properties ]
         private DeviceInfoModel _selectedDevice;
         public DeviceInfoModel SelectedDevice

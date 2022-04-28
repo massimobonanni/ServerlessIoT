@@ -21,8 +21,6 @@ namespace TelemetryDashboard.WPF.ViewModels
             this._deviceManager = deviceManager;
         }
 
-
-
         #region [ Properties ]
         public string ViewTitle
         {
@@ -151,18 +149,29 @@ namespace TelemetryDashboard.WPF.ViewModels
             return Task.CompletedTask;
         }
 
-        public Task<bool> SetContextAsync(object sender, object context, CancellationToken cancellationToken)
+        public async Task<bool> SetContextAsync(object sender, object context, CancellationToken cancellationToken)
         {
             var device = context as DeviceInfoModel;
             if (device != null)
             {
                 this.DeviceName = device.DeviceName;
                 this.DeviceId = device.DeviceId;
-                return Task.FromResult(true);
+
+                var config = await this._deviceManager.GetDeviceConfigurationAsync(device.DeviceId, cancellationToken);
+
+                if (config != null)
+                {
+                    this.NotificationNumber = config.NotificationNumber;
+                    this.TemperatureHighThreshold = config.TemperatureHighThreshold.HasValue ? config.TemperatureHighThreshold.ToString() : null;
+                    this.TemperatureLowThreshold = config.TemperatureLowThreshold.HasValue ? config.TemperatureLowThreshold.ToString() : null;
+                    this.RetentionHistory = config.HistoryRetention.TotalSeconds.ToString();
+                }
+
+                return true;
             }
             else
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
     }
