@@ -228,6 +228,46 @@ namespace TelemetryEntities
             }
             return new NotFoundObjectResult(deviceId);
         }
+
+
+        [OpenApiOperation("getConfiguration",
+          new[] { "Devices" },
+          Summary = "Get the configuration data for a specific device",
+          Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("deviceId",
+           Summary = "Identifier of the device",
+           In = Microsoft.OpenApi.Models.ParameterLocation.Path,
+           Required = true,
+           Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.OK,
+            "application/json",
+            typeof(DeviceEntityConfiguration),
+            Summary = "The device configuration data retrieved")]
+        [OpenApiResponseWithBody(System.Net.HttpStatusCode.NotFound,
+            "application/json",
+            typeof(string),
+            Summary = "The device id if the device doesn't exist")]
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
+
+        [FunctionName(nameof(GetConfiguration))]
+        public async Task<IActionResult> GetConfiguration(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "devices/{deviceId}/configuration")] HttpRequest req,
+            string deviceId,
+            [DurableClient] IDurableEntityClient client)
+        {
+            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
+
+            var entity = await client.ReadEntityStateAsync<JObject>(entityId);
+            if (entity.EntityExists)
+            {
+                var configuration = entity.EntityState.ExtractDeviceConfiguration();
+                return new OkObjectResult(configuration);
+            }
+            return new NotFoundObjectResult(deviceId);
+        }
     }
 
 }

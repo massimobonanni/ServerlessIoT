@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TelemetryEntities.Models;
 
 namespace Newtonsoft.Json.Linq
 {
@@ -53,14 +54,25 @@ namespace Newtonsoft.Json.Linq
             {
                 retVal.TelemetryHistory = historyData
                     .Select(kv => new DeviceTelemetryModel()
-                        {
-                            Timestamp = kv.Key,
-                            Temperature = kv.Value.Temperature,
-                            Humidity = kv.Value.Humidity
-                        })
-                    .OrderBy(v=>v.Timestamp)
+                    {
+                        Timestamp = kv.Key,
+                        Temperature = kv.Value.Temperature,
+                        Humidity = kv.Value.Humidity
+                    })
+                    .OrderBy(v => v.Timestamp)
                     .ToList();
             }
+
+            return retVal;
+        }
+
+
+        public static DeviceEntityConfiguration ExtractDeviceConfiguration(this JObject jobject)
+        {
+            if (jobject == null)
+                return null;
+
+            var retVal = jobject.Property("entityConfig").Value.ToObject<DeviceEntityConfiguration>();
 
             return retVal;
         }
