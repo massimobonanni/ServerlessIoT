@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using TelemetryDashboard.WPF.Messages;
 using TelemetryDashboard.WPF.Models;
 using DeviceTelemetryModel = TelemetryDashboard.WPF.Models.DeviceTelemetryModel;
+using DeviceInfoModel = TelemetryDashboard.WPF.Models.DeviceInfoModel;
 
 namespace TelemetryDashboard.WPF.ViewModels
 {
@@ -158,9 +159,9 @@ namespace TelemetryDashboard.WPF.ViewModels
                     _showTelemetryCommand = new RelayCommand(
                         () =>
                         {
-                            this.TelemetryDeviceID = this.SelectedDevice.DeviceId;
-                            this.TelemetryDeviceName = this.SelectedDevice.DeviceName;
-                            this.TelemetryDeviceLastUpdate = this.SelectedDevice.LastTelemetry == null ? DateTimeOffset.MinValue : this.SelectedDevice.LastTelemetry.Timestamp;
+                            this.TelemetryDeviceID = this.SelectedDevice.DeviceInfo?.DeviceId;
+                            this.TelemetryDeviceName = this.SelectedDevice.DeviceInfo?.DeviceName;
+                            this.TelemetryDeviceLastUpdate = this.SelectedDevice.DeviceInfo?.LastTelemetry == null ? DateTimeOffset.MinValue : this.SelectedDevice.DeviceInfo.LastTelemetry.Timestamp;
                             this.SearchPanelVisible = false;
                             this._devicesUpdateWorker.RunWorkerAsync();
                         },
@@ -186,7 +187,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                             Messenger.Default.Send(new OpenWindowMessage()
                             {
                                 WindowToOpen = WindowNames.DeviceConfiguration,
-                                Parameter = this.SelectedDevice
+                                Parameter = this.SelectedDevice.DeviceInfo
                             });
                         },
                         () =>
@@ -227,7 +228,10 @@ namespace TelemetryDashboard.WPF.ViewModels
             if (devices != null)
             {
                 this.Devices = new ObservableCollection<DeviceInfoModel>(
-                    devices.OrderBy(d => d.DeviceId));
+                        devices
+                            .OrderBy(d => d.DeviceId)
+                            .Select(d => new DeviceInfoModel(d))
+                    );
             }
             else
             {
@@ -247,7 +251,7 @@ namespace TelemetryDashboard.WPF.ViewModels
             {
                 Dispatcher.CurrentDispatcher.Invoke(() => this.IsBusy = true);
 
-                var device = await this._deviceManager.GetDeviceAsync(SelectedDevice.DeviceId, default);
+                var device = await this._deviceManager.GetDeviceAsync(SelectedDevice.DeviceInfo?.DeviceId, default);
 
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                     {

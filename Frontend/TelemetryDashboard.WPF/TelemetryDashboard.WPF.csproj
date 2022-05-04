@@ -94,6 +94,7 @@
     <Compile Include="Interfaces\IContextSettableObject.cs" />
     <Compile Include="Interfaces\IInitializableObject.cs" />
     <Compile Include="Messages\OpenWindowMessage.cs" />
+    <Compile Include="Models\DeviceInfoModel.cs" />
     <Compile Include="Models\DeviceTelemetryModel.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="ViewModelLocator.cs" />
