@@ -285,7 +285,7 @@ namespace TelemetryDashboard.WPF.ViewModels
             Dispatcher.CurrentDispatcher.Invoke(() => this.IsBusy = false);
         }
 
-        private TimeSpan GetTelemetriesPolling = TimeSpan.FromSeconds(2);
+        private TimeSpan GetTelemetriesPolling = TimeSpan.FromSeconds(App.Parameters.PollingTimeInSec);
         #endregion [ Background worker for telemetry ]
 
     }

@@ -36,8 +36,8 @@
                     <DataGridTextColumn Header="Id" Binding="{Binding Path=DeviceId}"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Path=DeviceName}"/>
                     <DataGridTextColumn Header="Last Update" Binding="{Binding Path=LastTelemetry.Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
-                    <DataGridTextColumn Header="Temperature" Binding="{Binding Path=LastTelemetry.Temperature}"/>
-                    <DataGridTextColumn Header="Humidity" Binding="{Binding Path=LastTelemetry.Humidity}"/>
+                    <DataGridTextColumn Header="Temperature" Binding="{Binding Path=LastTelemetry.Temperature,StringFormat={}{0:0.00}}"/>
+                    <DataGridTextColumn Header="Humidity" Binding="{Binding Path=LastTelemetry.Humidity,StringFormat={}{0:0.00}}"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -49,7 +49,7 @@
                 <Button Command="{Binding Path=ShowTelemetryCommand}" Margin="10">Show Telemetry</Button>
                 <Button Grid.Column="1" Command="{Binding Path=ConfigureDeviceCommand}" Margin="10">Configure Device</Button>
             </Grid>
-            
+
             <Grid Grid.Row="0" Grid.RowSpan="3" Background="White" Opacity="0.6" 
                   Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ProgressBar Width="300" Height="50" IsIndeterminate="{Binding Path=IsBusy}"
@@ -83,7 +83,7 @@
 
                 <TextBlock Grid.Row="2" Margin="10" VerticalAlignment="Center">
                     <Run Text="Last Update:: "/>
-                    <Run Text="{Binding Path=TelemetryDeviceLastUpdate,StringFormat={}{0:dd/MM/yyyy HH:mm:ss.fff}}" FontWeight="DemiBold"/>
+                    <Run Text="{Binding Path=TelemetryDeviceLastUpdate,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" FontWeight="DemiBold"/>
                 </TextBlock>
 
             </Grid>
@@ -99,9 +99,9 @@
                       CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" Grid.Column="0"
                       SelectionMode="Single">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Last Update" Binding="{Binding Path=Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss.fff}}"/>
-                        <DataGridTextColumn Header="Temperature" Binding="{Binding Path=Temperature}"/>
-                        <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity}"/>
+                        <DataGridTextColumn Header="Last Update" Binding="{Binding Path=Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                        <DataGridTextColumn Header="Temperature" Binding="{Binding Path=Temperature,StringFormat={}{0:0.00}}"/>
+                        <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity,StringFormat={}{0:0.00}}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
@@ -129,7 +129,7 @@
                                        Palette="RedChrome" Header="Humidity">
                             <chart:SfChart.PrimaryAxis>
                                 <chart:DateTimeAxis x:Name="datetime" Header="Date" LabelFormat="HH:mm:ss.fff"
-                                    IntervalType="Seconds" Interval="10" ShowGridLines="False"/>     
+                                    IntervalType="Seconds" Interval="10" ShowGridLines="False"/>
                             </chart:SfChart.PrimaryAxis>
 
                             <chart:SfChart.SecondaryAxis>

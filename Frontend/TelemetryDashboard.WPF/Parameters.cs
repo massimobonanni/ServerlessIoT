@@ -12,15 +12,23 @@ namespace TelemetryDashboard.WPF
     {
         [Option(
             'u',
-            "APIUrl",
+            "apiurl",
             HelpText = "Url for the Devices APIs")]
         public string APIUrl { get; set; }
 
         [Option(
             'k',
-            "APIKey",
+            "apikey",
             HelpText = "API Key for the Devices APIs")]
         public string APIKey { get; set; }
+
+        [Option(
+            'p',
+            "pollingtime",
+            HelpText = "Polling time (in secs) between each call to retrieve telemetry for a device",
+            Default = 10,
+            Required = false)]
+        public int PollingTimeInSec { get; set; }
 
     }
 }
