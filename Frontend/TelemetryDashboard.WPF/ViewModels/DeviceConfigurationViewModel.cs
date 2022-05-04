@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Messaging;
 using ServerlessIoT.Core.Interfaces;
 using ServerlessIoT.Core.Models;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TelemetryDashboard.WPF.Interfaces;
+using TelemetryDashboard.WPF.Messages;
 using TelemetryEntities.Models;
 
 namespace TelemetryDashboard.WPF.ViewModels
@@ -139,9 +141,17 @@ namespace TelemetryDashboard.WPF.ViewModels
                 NotificationNumber = this.NotificationNumber
             };
 
-            await this._deviceManager.SetDeviceConfigurationAsync(this.DeviceId, configuration, default);
+            var updateResult = await this._deviceManager.SetDeviceConfigurationAsync(this.DeviceId, configuration, default);
 
             this.IsBusy = false;
+            if (updateResult)
+            {
+                Messenger.Default.Send(new CloseWindowMessage()
+                {
+                    WindowToClose = WindowNames.DeviceConfiguration,
+                    Parameter = null
+                });
+            }
         }
 
         public Task InitializeAsync(object sender, CancellationToken cancellationToken)

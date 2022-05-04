@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.Messaging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,17 +14,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TelemetryDashboard.WPF.Interfaces;
+using TelemetryDashboard.WPF.Messages;
 
 namespace TelemetryDashboard.WPF.Views
 {
     /// <summary>
     /// Interaction logic for DeviceConfigurationWindow.xaml
     /// </summary>
-    public partial class DeviceConfigurationWindow : Window,IContextSettableObject
+    public partial class DeviceConfigurationWindow : Window, IContextSettableObject
     {
         public DeviceConfigurationWindow()
         {
             InitializeComponent();
+
+            Messenger.Default.Register<CloseWindowMessage>(this, CloseWindowMessageHandler);
+        }
+
+        private void CloseWindowMessageHandler(CloseWindowMessage msg)
+        {
+            if (msg.WindowToClose == WindowNames.DeviceConfiguration)
+            {
+                Messenger.Default.Unregister<CloseWindowMessage>(this, CloseWindowMessageHandler);
+                this.Close();
+            }
         }
 
         public async Task<bool> SetContextAsync(object sender, object context, CancellationToken cancellationToken)

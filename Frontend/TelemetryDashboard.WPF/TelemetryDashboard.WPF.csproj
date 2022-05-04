@@ -93,6 +93,7 @@
     <Compile Include="DeviceTelemetryModelComparer.cs" />
     <Compile Include="Interfaces\IContextSettableObject.cs" />
     <Compile Include="Interfaces\IInitializableObject.cs" />
+    <Compile Include="Messages\CloseWindowMessage.cs" />
     <Compile Include="Messages\OpenWindowMessage.cs" />
     <Compile Include="Models\DeviceInfoModel.cs" />
     <Compile Include="Models\DeviceTelemetryModel.cs" />
