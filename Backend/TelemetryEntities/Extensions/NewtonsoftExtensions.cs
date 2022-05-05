@@ -46,18 +46,18 @@ namespace Newtonsoft.Json.Linq
                 return null;
 
             var retVal = new DeviceDetailModel();
-            retVal.DeviceName = (string)jobject.Property("deviceName").Value;
+            retVal.DeviceName = jobject.Property("deviceName").Value?.ToString();
             retVal.LastTelemetry = jobject.ToDeviceTelemetryModel();
             var historyData = jobject.Property("historyData").Value.ToObject<Dictionary<DateTimeOffset, DeviceData>>();
 
-            if (historyData != null)
+            if (historyData != null && historyData.Any())
             {
                 retVal.TelemetryHistory = historyData
                     .Select(kv => new DeviceTelemetryModel()
                     {
                         Timestamp = kv.Key,
-                        Temperature = kv.Value.Temperature,
-                        Humidity = kv.Value.Humidity
+                        Temperature = kv.Value == null ? double.NaN : kv.Value.Temperature,
+                        Humidity = kv.Value == null ? double.NaN : kv.Value.Humidity
                     })
                     .OrderBy(v => v.Timestamp)
                     .ToList();

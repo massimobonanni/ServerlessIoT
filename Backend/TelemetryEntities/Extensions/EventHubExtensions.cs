@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using ServerlessIoT.Core;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,33 @@ namespace Azure.Messaging.EventHubs
 {
     public static class EventHubExtensions
     {
-        public static DeviceTelemetry ExtractDeviceTelemetry(this EventData message)
+        public static DeviceTelemetry ExtractDeviceTelemetry(this EventData message, ILogger logger)
         {
-            if (message == null) 
+            if (message == null)
                 throw new NullReferenceException(nameof(message));
 
-            var messageBody = Encoding.UTF8.GetString(message.EventBody);
-            var telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(messageBody);
-            if (string.IsNullOrWhiteSpace(telemetry.DeviceId))
+            DeviceTelemetry telemetry = null;
+
+            try
             {
-                telemetry.DeviceId = message.SystemProperties["iothub-connection-device-id"].ToString();
+                var messageBody = Encoding.UTF8.GetString(message.EventBody);
+                logger?.LogTrace(messageBody);
+                telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(messageBody);
             }
-            if (telemetry.Timestamp == DateTimeOffset.MinValue)
+            catch (Exception ex)
             {
-                telemetry.Timestamp = message.EnqueuedTime;
+                logger.LogError(ex, "Error during telemetry message deserialization");
+            }
+
+            if (telemetry != null)
+            {
+                if (string.IsNullOrWhiteSpace(telemetry.DeviceId))
+                    telemetry.DeviceId = message.SystemProperties["iothub-connection-device-id"].ToString();
+                if (string.IsNullOrWhiteSpace(telemetry.DeviceName))
+                    telemetry.DeviceName = message.SystemProperties["iothub-connection-device-id"].ToString();
+                if (telemetry.Timestamp == DateTimeOffset.MinValue)
+                    telemetry.Timestamp = message.EnqueuedTime;
+
             }
             return telemetry;
         }

@@ -53,6 +53,9 @@ namespace TelemetryEntities.Entities
             if (HistoryData == null)
                 HistoryData = new Dictionary<DateTimeOffset, DeviceData>();
 
+            if (telemetry == null || telemetry.Data == null)
+                return;
+
             if (telemetry.Timestamp < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention))
                 return;
 

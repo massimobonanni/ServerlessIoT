@@ -43,8 +43,8 @@ namespace TelemetryEntities
         {
             foreach (var message in eventHubMessages)
             {
-                var telemetry = message.ExtractDeviceTelemetry();
-                logger.LogInformation($"Receiving telemetry from device {telemetry.DeviceId} [telemetry timestamp {telemetry.Timestamp}]");
+                var telemetry = message.ExtractDeviceTelemetry(logger);
+                logger.LogTelemetryInfo(telemetry);
                 var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
                 await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
             }
