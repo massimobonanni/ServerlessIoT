@@ -23,12 +23,12 @@
   <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
   <!-- vertag<:>end -->
   <ItemGroup>
-    <Content Include="azuredeploy.json" />
-    <Content Include="azuredeploy.parameters.json" />
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
-    <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <None Include="FunctionsModule.bicep" />
+    <None Include="IoTModule.bicep" />
+    <None Include="KeyVaultModule.bicep" />
     <None Include="README.md" />
     <None Include="Scripts\Deploy-TelemetrySimulatorACI.md" />
     <None Include="Scripts\Deploy-TelemetrySimulatorACI.ps1" />
@@ -38,6 +38,7 @@
     <None Include="Scripts\New-Environment.ps1" />
     <None Include="Scripts\Add-SimulatorDevices.md" />
     <None Include="Scripts\Add-SimulatorDevices.ps1" />
+    <None Include="ServerlessIoTEnvironment.bicep" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
