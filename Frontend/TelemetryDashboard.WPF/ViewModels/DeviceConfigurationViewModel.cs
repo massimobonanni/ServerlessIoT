@@ -86,6 +86,28 @@ namespace TelemetryDashboard.WPF.ViewModels
             }
         }
 
+        private string _temperatureDecimalPrecision;
+        public string TemperatureDecimalPrecision
+        {
+            get => this._temperatureDecimalPrecision;
+            set
+            {
+                _temperatureDecimalPrecision = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        private string _humidityDecimalPrecision;
+        public string HumidityDecimalPrecision
+        {
+            get => this._humidityDecimalPrecision;
+            set
+            {
+                _humidityDecimalPrecision = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         private string _notificationNumber;
         public string NotificationNumber
         {
@@ -133,12 +155,28 @@ namespace TelemetryDashboard.WPF.ViewModels
                 temperatureLowThreshold = threshold2;
             }
 
+            int temperatureDecimalPrecision;
+            if (!int.TryParse(this.TemperatureDecimalPrecision, out temperatureDecimalPrecision)
+                || temperatureDecimalPrecision < 0)
+            {
+                temperatureDecimalPrecision = 2;
+            }
+
+            int humidityDecimalPrecision;
+            if (!int.TryParse(this.HumidityDecimalPrecision, out humidityDecimalPrecision)
+                || humidityDecimalPrecision < 0)
+            {
+                humidityDecimalPrecision = 2;
+            }
+
             var configuration = new DeviceConfigurationModel()
             {
                 HistoryRetention = TimeSpan.FromSeconds(retentionHistory),
                 TemperatureHighThreshold = temperatureHighThreshold,
                 TemperatureLowThreshold = temperatureLowThreshold,
-                NotificationNumber = this.NotificationNumber
+                NotificationNumber = this.NotificationNumber,
+                TemperatureDecimalPrecision = temperatureDecimalPrecision,
+                HumidityDecimalPrecision = humidityDecimalPrecision
             };
 
             var updateResult = await this._deviceManager.SetDeviceConfigurationAsync(this.DeviceId, configuration, default);
@@ -175,8 +213,10 @@ namespace TelemetryDashboard.WPF.ViewModels
                     this.TemperatureHighThreshold = config.TemperatureHighThreshold.HasValue ? config.TemperatureHighThreshold.ToString() : null;
                     this.TemperatureLowThreshold = config.TemperatureLowThreshold.HasValue ? config.TemperatureLowThreshold.ToString() : null;
                     this.RetentionHistory = config.HistoryRetention.TotalSeconds.ToString();
+                    this.TemperatureDecimalPrecision = config.TemperatureDecimalPrecision.ToString();
+                    this.TemperatureDecimalPrecision = config.TemperatureDecimalPrecision.ToString();
+                    this.HumidityDecimalPrecision = config.HumidityDecimalPrecision.ToString();
                 }
-
                 return true;
             }
             else

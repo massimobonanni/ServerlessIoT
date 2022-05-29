@@ -13,6 +13,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -37,9 +39,19 @@
             <TextBox Width="200" Margin="10" Text="{Binding Path=NotificationNumber,UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </StackPanel>
 
-        <Button Grid.Row="5" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
+        <StackPanel Grid.Row="4" Orientation="Horizontal">
+            <Label Margin="10,10,0,10">Number of decimal for Temperature:</Label>
+            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
 
-        <Grid Grid.Row="0" Grid.RowSpan="6" Background="White" Opacity="0.6" 
+        <StackPanel Grid.Row="5" Orientation="Horizontal">
+            <Label Margin="10,10,0,10">Number of decimal for Humidity:</Label>
+            <TextBox Width="100" Margin="10" Text="{Binding Path=HumidityDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
+        
+        <Button Grid.Row="7" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
+
+        <Grid Grid.Row="0" Grid.RowSpan="8" Background="White" Opacity="0.6" 
                   Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}">
             <ProgressBar Width="300" Height="50" IsIndeterminate="{Binding Path=IsBusy}"
                              IsEnabled="{Binding Path=IsBusy}"/>
