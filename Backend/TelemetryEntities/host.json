@@ -2,11 +2,9 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Warning",
-      "Host.Results": "Error",
+      "default": "Error",
       "Function.IoTHubDispatcher": "Information",
-      "Function": "Information",
-      "Host.Aggregator": "Trace"
+      "Function": "Information"
     },
     "applicationInsights": {
       "samplingExcludedTypes": "Request",

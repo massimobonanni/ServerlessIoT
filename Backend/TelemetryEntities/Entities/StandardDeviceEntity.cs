@@ -59,6 +59,8 @@ namespace TelemetryEntities.Entities
             if (telemetry.Timestamp < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention))
                 return;
 
+            NormalizeTelemetryData(telemetry);
+
             HistoryData[telemetry.Timestamp] = telemetry.Data;
 
             if (LastUpdate < telemetry.Timestamp)
@@ -74,11 +76,24 @@ namespace TelemetryEntities.Entities
 
         public void SetConfiguration(DeviceEntityConfiguration config)
         {
+            if (config == null)
+                return;
+            if (config.HumidityDecimalPrecision < 0)
+                config.HumidityDecimalPrecision = 2;
+            if (config.TemperatureDecimalPrecision < 0)
+                config.TemperatureDecimalPrecision = 2;
+
             this.EntityConfig = config;
         }
         #endregion [ Behaviour ]
 
         #region [ Private Methods ]
+        private void NormalizeTelemetryData(DeviceTelemetry telemetry)
+        {
+            telemetry.Data.Temperature = Math.Round(telemetry.Data.Temperature, EntityConfig.TemperatureDecimalPrecision);
+            telemetry.Data.Humidity = Math.Round(telemetry.Data.Humidity, EntityConfig.HumidityDecimalPrecision);
+        }
+
         private void CheckAlert()
         {
             if (this.EntityConfig.TemperatureHighAlertEnabled())

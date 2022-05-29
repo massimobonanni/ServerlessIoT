@@ -49,8 +49,7 @@ namespace TelemetryEntities.Entities
             if (telemetry.Timestamp < DateTimeOffset.Now.Subtract(EntityConfig.HistoryRetention))
                 return;
 
-            telemetry.Data.Temperature = Math.Round(telemetry.Data.Temperature, 1);
-            telemetry.Data.Humidity = Math.Round(telemetry.Data.Humidity, 1);
+            NormalizeTelemetryData(telemetry);
 
             HistoryData[telemetry.Timestamp] = telemetry.Data;
 
@@ -75,9 +74,20 @@ namespace TelemetryEntities.Entities
 
         public void SetConfiguration(DeviceEntityConfiguration config)
         {
+            if (config == null)
+                return;
+
+            config.HumidityDecimalPrecision = 1;
+            config.TemperatureDecimalPrecision = 1;
+
             this.EntityConfig = config;
         }
         #endregion [ Behaviour ]
+        private void NormalizeTelemetryData(DeviceTelemetry telemetry)
+        {
+            telemetry.Data.Temperature = Math.Round(telemetry.Data.Temperature, EntityConfig.TemperatureDecimalPrecision);
+            telemetry.Data.Humidity = Math.Round(telemetry.Data.Humidity, EntityConfig.HumidityDecimalPrecision);
+        }
 
         [FunctionName(nameof(WeatherDeviceEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger logger)
