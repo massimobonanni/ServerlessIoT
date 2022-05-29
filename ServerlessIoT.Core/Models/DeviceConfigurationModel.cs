@@ -18,5 +18,11 @@ namespace TelemetryEntities.Models
 
         [JsonProperty("notificationNumber")]
         public string NotificationNumber { get; set; }
+
+        [JsonProperty("temperatureDecimalPrecision")]
+        public int TemperatureDecimalPrecision { get; set; } = 2;
+
+        [JsonProperty("humidityDecimalPrecision")]
+        public int HumidityDecimalPrecision { get; set; } = 2;
     }
 }
