@@ -27,12 +27,12 @@ namespace TelemetryEntities.Models
 
         public bool TemperatureHighAlertEnabled()
         {
-            return TemperatureHighThreshold.HasValue && !string.IsNullOrWhiteSpace(NotificationNumber);
+            return TemperatureHighThreshold.HasValue ;
         }
 
         public bool TemperatureLowAlertEnabled()
         {
-            return TemperatureLowThreshold.HasValue && !string.IsNullOrWhiteSpace(NotificationNumber);
+            return TemperatureLowThreshold.HasValue;
         }
     }
 }

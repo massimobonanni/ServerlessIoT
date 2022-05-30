@@ -21,9 +21,12 @@ namespace TelemetryEntities.Orchestrators
         {
             var notificationdata = context.GetInput<NotificationData>();
 
-            await context.CallActivityAsync(nameof(IoTHubActivity.SendMessageToDevice), notificationdata);
+            await context.CallActivityAsync(nameof(IoTHubActivity.SendMessageToDevice), 
+                notificationdata);
 
-            await context.CallActivityAsync(nameof(TwilioActivities.SendMessageToTwilio), notificationdata);
+            if (!string.IsNullOrEmpty(notificationdata.NotificationNumber))
+                await context.CallActivityAsync(nameof(TwilioActivities.SendMessageToTwilio), 
+                    notificationdata);
 
         }
 

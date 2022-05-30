@@ -153,7 +153,7 @@ namespace TelemetryEntities.Entities
 
         private void Notify(NotificationType notificationType)
         {
-            var notificatioData = new NotificationData()
+            var notificationData = new NotificationData()
             {
                 Timestamp = DateTimeOffset.Now,
                 DeviceName = this.DeviceName,
@@ -165,25 +165,25 @@ namespace TelemetryEntities.Entities
             switch (notificationType)
             {
                 case NotificationType.HighTemperature:
-                    notificatioData.CurrentValue = this.LastData.Temperature;
-                    notificatioData.ThresholdValue = this.EntityConfig.TemperatureHighThreshold;
+                    notificationData.CurrentValue = this.LastData.Temperature;
+                    notificationData.ThresholdValue = this.EntityConfig.TemperatureHighThreshold;
                     break;
                 case NotificationType.LowTemperature:
-                    notificatioData.CurrentValue = this.LastData.Temperature;
-                    notificatioData.ThresholdValue = this.EntityConfig.TemperatureLowThreshold;
+                    notificationData.CurrentValue = this.LastData.Temperature;
+                    notificationData.ThresholdValue = this.EntityConfig.TemperatureLowThreshold;
                     break;
                 case NotificationType.HighHumidity:
-                    notificatioData.CurrentValue = this.LastData.Humidity;
+                    notificationData.CurrentValue = this.LastData.Humidity;
                     break;
                 case NotificationType.LowHumidity:
-                    notificatioData.CurrentValue = this.LastData.Humidity;
+                    notificationData.CurrentValue = this.LastData.Humidity;
                     break;
                 default:
                 case NotificationType.Unknown:
                     break;
             }
 
-            Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification), notificatioData);
+            Entity.Current.StartNewOrchestration(nameof(NotificationOrchestrator.SendNotification), notificationData);
 
         }
         #endregion [ Private Methods ]
