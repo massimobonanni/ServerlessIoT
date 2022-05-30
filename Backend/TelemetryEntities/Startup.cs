@@ -15,6 +15,7 @@ namespace TelemetryEntities
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddScoped<IEntityFactory, EntityFactory>();
+            builder.Services.AddScoped<IIotHubService, EmptyIotHubService>();
         }
     }
 }

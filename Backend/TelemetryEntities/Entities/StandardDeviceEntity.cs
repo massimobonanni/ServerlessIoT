@@ -158,7 +158,8 @@ namespace TelemetryEntities.Entities
                 Timestamp = DateTimeOffset.Now,
                 DeviceName = this.DeviceName,
                 NotificationNumber = this.EntityConfig.NotificationNumber,
-                Type = notificationType
+                Type = notificationType,
+                DeviceId = Entity.Current.EntityKey
             };
 
             switch (notificationType)

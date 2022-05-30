@@ -7,29 +7,25 @@ using System.Collections.Generic;
 using System.Text;
 using Twilio.Types;
 using Microsoft.Extensions.Configuration;
+using TelemetryEntities.Models;
 
 namespace TelemetryEntities.Activities
 {
     public class TwilioActivities
     {
-        public class SmsData
-        {
-            public string Message { get; set; }
-            public string Destination { get; set; }
-        }
 
         [FunctionName(nameof(SendMessageToTwilio))]
         [return: TwilioSms(AccountSidSetting = "TwilioAccountSid", AuthTokenSetting = "TwilioAuthToken")]
         public CreateMessageOptions SendMessageToTwilio([ActivityTrigger] IDurableActivityContext context, ILogger log)
         {
-            SmsData data = context.GetInput<SmsData>();
+            var data = context.GetInput<NotificationData>();
 
-            log.LogInformation($"Sending message to : {data.Destination}");
+            log.LogInformation($"Sending message to : {data.NotificationNumber}");
 
-            var message = new CreateMessageOptions(new PhoneNumber(data.Destination))
+            var message = new CreateMessageOptions(new PhoneNumber(data.NotificationNumber))
             {
                 From = new PhoneNumber(Environment.GetEnvironmentVariable("TwilioFromNumber")),
-                Body = data.Message
+                Body = data.CreateMessage()
             };
 
             return message;

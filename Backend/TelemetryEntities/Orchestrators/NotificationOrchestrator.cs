@@ -21,38 +21,11 @@ namespace TelemetryEntities.Orchestrators
         {
             var notificationdata = context.GetInput<NotificationData>();
 
-            var smsData = new TwilioActivities.SmsData()
-            {
-                Destination = notificationdata.NotificationNumber,
-                Message = CreateMessageFromNotificationdata(notificationdata)
-            };
+            await context.CallActivityAsync(nameof(IoTHubActivity.SendMessageToDevice), notificationdata);
 
-            try
-            {
-                await context.CallActivityAsync(nameof(TwilioActivities.SendMessageToTwilio), smsData);
-            }
-            catch (System.Exception ex)
-            {
-                logger.LogError(ex, "Error during TwilioActivity invocation", smsData);
-            }
+            await context.CallActivityAsync(nameof(TwilioActivities.SendMessageToTwilio), notificationdata);
+
         }
 
-        private string CreateMessageFromNotificationdata(NotificationData notificationData)
-        {
-            switch (notificationData.Type)
-            {
-                case NotificationType.LowTemperature:
-                    return $"Temperature {notificationData.CurrentValue:0.00} less then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
-                case NotificationType.HighTemperature:
-                    return $"Temperature {notificationData.CurrentValue:0.00} greater then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
-                case NotificationType.LowHumidity:
-                    return $"Humidity {notificationData.CurrentValue:0.00} less then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
-                case NotificationType.HighHumidity:
-                    return $"Humidity {notificationData.CurrentValue:0.00} greater then {notificationData.ThresholdValue:0.00} from {notificationData.DeviceName} at {notificationData.Timestamp}.";
-                case NotificationType.Unknown:
-                default:
-                    return "";
-            }
-        }
     }
 }

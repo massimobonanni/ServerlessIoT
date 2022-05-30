@@ -14,6 +14,7 @@ namespace TelemetryEntities.Models
         public NotificationType Type { get; set; }
         public string NotificationNumber { get; set; }
         public string DeviceName { get; set; }
+        public string DeviceId { get; set; }
     }
 
     public enum NotificationType
