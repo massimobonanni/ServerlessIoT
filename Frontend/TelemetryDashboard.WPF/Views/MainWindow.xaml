@@ -36,8 +36,8 @@
                     <DataGridTextColumn Header="Id" Binding="{Binding Path=DeviceInfo.DeviceId}"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Path=DeviceInfo.DeviceName}"/>
                     <DataGridTextColumn Header="Last Update" Binding="{Binding Path=LastTelemetryLocalTimestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
-                    <DataGridTextColumn Header="Temperature" Binding="{Binding Path=DeviceInfo.LastTelemetry.Temperature,StringFormat={}{0:0.00000}}"/>
-                    <DataGridTextColumn Header="Humidity" Binding="{Binding Path=DeviceInfo.LastTelemetry.Humidity,StringFormat={}{0:0.00000}}"/>
+                    <DataGridTextColumn Header="Temperature" Binding="{Binding Path=DeviceInfo.LastTelemetry.Temperature}"/>
+                    <DataGridTextColumn Header="Humidity" Binding="{Binding Path=DeviceInfo.LastTelemetry.Humidity}"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -100,8 +100,8 @@
                       SelectionMode="Single">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Last Update" Binding="{Binding Path=Timestamp,StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
-                        <DataGridTextColumn Header="Temperature" Binding="{Binding Path=Temperature,StringFormat={}{0:0.00000}}"/>
-                        <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity,StringFormat={}{0:0.00000}}"/>
+                        <DataGridTextColumn Header="Temperature" Binding="{Binding Path=Temperature}"/>
+                        <DataGridTextColumn Header="Humidity" Binding="{Binding Path=Humidity}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
