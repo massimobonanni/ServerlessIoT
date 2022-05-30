@@ -23,7 +23,12 @@ namespace TelemetryEntities.Activities
         public async Task SendMessageToDevice([ActivityTrigger] NotificationData notificationData, ILogger log)
         {
             var message = notificationData.CreateMessage();
-            await this.iotHubService.SendMessageToDeviceAsync(notificationData.DeviceId, message);
+            var properties = new Dictionary<string, string>();
+            properties["CurrentValue"] = notificationData.CurrentValue.ToString();
+            properties["ThresholdValue"] = notificationData.ThresholdValue.ToString();
+            properties["Type"] = notificationData.Type.ToString();
+
+            await this.iotHubService.SendMessageToDeviceAsync(notificationData.DeviceId, message, properties);
         }
     }
 }

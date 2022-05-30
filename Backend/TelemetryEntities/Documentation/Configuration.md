@@ -12,7 +12,8 @@ The app settings looks like the following:
     "TwilioAuthToken": "",
     "TwilioFromNumber": "",
     "IotHubName": "",
-    "IoTHubConnectionAppSetting": ""
+    "EventHubCompatibleConnectionString": "",
+    "IotHubConnectionString":""
   }
 }
 ```
@@ -25,6 +26,10 @@ The app settings looks like the following:
 
 ![](Images/EventHubCompatibleName.jpg)
 
-* `IoTHubConnectionAppSetting` : The Event Hub-compatible endpoint you can find in the built-in endpoints blade of the IoTHub in Azure portal.
+* `EventHubCompatibleConnectionString` : The Event Hub-compatible endpoint you can find in the built-in endpoints blade of the IoTHub in Azure portal.
 
 ![](Images/EventHubCompatibleEndpoint.jpg)
+
+* `IotHubConnectionString` : The IoT Hub connection string. It is used by the platform to send message to devices. You can find it in the "Shared Access Policies" blade of the portal.
+
+![](Images/IotHubConnectionString.jpg)

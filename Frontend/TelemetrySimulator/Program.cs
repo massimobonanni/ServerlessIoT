@@ -74,6 +74,7 @@ namespace TelemetrySimulator
             foreach (var device in config.Devices)
             {
                 tasks.Add(SendDeviceToCloudMessagesAsync(device, cts.Token));
+                tasks.Add(ReceiveCloudToDeviceMessagesAsync(device, cts.Token));
                 await Task.Delay(rand.Next(125, 2000));
             }
 
@@ -170,7 +171,7 @@ namespace TelemetrySimulator
                 // Send the telemetry message (if the connectionstring for device is configured)
                 if (deviceClient != null)
                     await deviceClient.SendEventAsync(message);
-                Console.WriteLine($"{DateTime.Now} > Sending message: {messageBody}");
+                Console.WriteLine($"{DateTime.Now} > > Device {device.Id} > Sending message: {messageBody}");
 
                 try
                 {
@@ -179,6 +180,44 @@ namespace TelemetrySimulator
                 catch (TaskCanceledException)
                 {
                     break;
+                }
+            }
+
+            if (deviceClient != null)
+                deviceClient.Dispose();
+        }
+
+        private static async Task ReceiveCloudToDeviceMessagesAsync(DeviceConfiguration device, CancellationToken ct)
+        {
+            DeviceClient deviceClient = null;
+            if (!string.IsNullOrWhiteSpace(device.ConnectionString))
+            {
+                var cs = IotHubConnectionStringBuilder.Create(device.ConnectionString);
+                deviceClient = DeviceClient.CreateFromConnectionString(cs.ToString(), TransportType.Mqtt);
+            }
+
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    Message receivedMessage = await deviceClient.ReceiveAsync(TimeSpan.FromMilliseconds(1000));
+                    if (receivedMessage != null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"{DateTime.Now} > Device {device.Id} > Receiving message: {Encoding.ASCII.GetString(receivedMessage.GetBytes())}");
+                        Console.ResetColor();
+
+                        await deviceClient.CompleteAsync(receivedMessage, ct);
+                        receivedMessage.Dispose();
+                    }
+                    await Task.Delay(500, ct);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+                catch 
+                {
                 }
             }
 

@@ -8,6 +8,6 @@ namespace TelemetryEntities.Services
 {
     public interface IIotHubService
     {
-        Task SendMessageToDeviceAsync(string deviceId, string message);
+        Task SendMessageToDeviceAsync(string deviceId, string message, IDictionary<string, string> properties = null);
     }
 }

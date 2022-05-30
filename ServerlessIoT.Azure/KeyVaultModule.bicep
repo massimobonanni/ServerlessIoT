@@ -18,8 +18,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   }
 }
 
-resource IoTHubConnectionAppSetting 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
-  name: '${keyVault.name}/IoTHubConnectionAppSetting'
+resource EventHubCompatibleConnectionString 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
+  name: '${keyVault.name}/EventHubCompatibleConnectionString'
   properties: {
     value: eventHubCompatibleEndpoint
   }
@@ -33,5 +33,5 @@ resource IotHubNameAppSettings 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = 
 }
 
 output keyVaultName string =  keyVault.name
-output ioTHubConnectionSettingKVSecret string = IoTHubConnectionAppSetting.properties.secretUri
+output ioTHubConnectionSettingKVSecret string = EventHubCompatibleConnectionString.properties.secretUri
 output ioTHubNamenSettingKVSecret string = IotHubNameAppSettings.properties.secretUri

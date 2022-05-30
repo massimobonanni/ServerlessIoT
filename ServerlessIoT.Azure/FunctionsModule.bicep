@@ -94,7 +94,7 @@ resource functionApp 'Microsoft.Web/sites@2020-12-01' = {
           value: '~4'
         }
         {
-          name: 'IoTHubConnectionAppSetting'
+          name: 'EventHubCompatibleConnectionString'
           value: '@Microsoft.KeyVault(SecretUri=${ioTHubConnectionSettingKVSecret})'
         }
         {

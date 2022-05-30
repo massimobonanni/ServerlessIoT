@@ -37,7 +37,7 @@ namespace TelemetryEntities
 
         [FunctionName(nameof(IoTHubDispatcher))]
         public async Task IoTHubDispatcher(
-            [IoTHubTrigger("%IotHubName%", Connection = "IoTHubConnectionAppSetting")] EventData[] eventHubMessages,
+            [IoTHubTrigger("%IotHubName%", Connection = "EventHubCompatibleConnectionString")] EventData[] eventHubMessages,
             [DurableClient] IDurableEntityClient client,
             ILogger logger)
         {
