@@ -9,6 +9,7 @@ namespace TelemetryDashboard.WPF
     public enum WindowNames
     {
         MainWindow,
-        DeviceConfiguration
+        DeviceConfiguration,
+        DeviceMethod
     }
 }

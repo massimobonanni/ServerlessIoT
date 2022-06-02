@@ -112,7 +112,7 @@ namespace TelemetryEntities.Rest
         }
 
         public async Task<bool> CallDeviceMethodAsync(string deviceId, 
-            DeviceMethod method, CancellationToken cancellationToken)
+            DeviceMethodModel method, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(deviceId))
                 throw new ArgumentException(nameof(deviceId));

@@ -32,12 +32,24 @@ namespace TelemetryDashboard.WPF
 
         private async void OpenWindowMessageHandler(OpenWindowMessage msg)
         {
-            if (msg.WindowToOpen == WindowNames.DeviceConfiguration)
+            switch (msg.WindowToOpen)
             {
-                var window = new DeviceConfigurationWindow();
-                window.Show();
-                await window.SetContextAsync(this, msg.Parameter, default);
+                case WindowNames.MainWindow:
+                    break;
+                case WindowNames.DeviceConfiguration:
+                    var configWindow = new DeviceConfigurationWindow();
+                    configWindow.Show();
+                    await configWindow.SetContextAsync(this, msg.Parameter, default);
+                    break;
+                case WindowNames.DeviceMethod:
+                    var methodWindow = new DeviceMethodWindow();
+                    methodWindow.Show();
+                    await methodWindow.SetContextAsync(this, msg.Parameter, default);
+                    break;
+                default:
+                    break;
             }
+
         }
     }
 }

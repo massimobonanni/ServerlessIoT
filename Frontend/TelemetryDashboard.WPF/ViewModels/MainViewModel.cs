@@ -199,6 +199,31 @@ namespace TelemetryDashboard.WPF.ViewModels
             }
         }
 
+        private RelayCommand _deviceMethodCommand;
+        public RelayCommand DeviceMethodCommand
+        {
+            get
+            {
+                if (_deviceMethodCommand == null)
+                {
+                    _deviceMethodCommand = new RelayCommand(
+                        () =>
+                        {
+                            Messenger.Default.Send(new OpenWindowMessage()
+                            {
+                                WindowToOpen = WindowNames.DeviceMethod,
+                                Parameter = this.SelectedDevice.DeviceInfo
+                            });
+                        },
+                        () =>
+                        {
+                            return this.SelectedDevice != null;
+                        });
+                }
+                return _deviceMethodCommand;
+            }
+        }
+
         private RelayCommand _hideTelemetryCommand;
         public RelayCommand HideTelemetryCommand
         {

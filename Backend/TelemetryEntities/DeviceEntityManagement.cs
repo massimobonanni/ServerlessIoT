@@ -281,7 +281,7 @@ namespace TelemetryEntities
             Required = true,
             Visibility = OpenApiVisibilityType.Important)]
         [OpenApiRequestBody("application/json",
-            typeof(DeviceMethod),
+            typeof(DeviceMethodModel),
             Description = "The method to call",
             Required = true)]
         [OpenApiResponseWithoutBody(System.Net.HttpStatusCode.OK,
@@ -303,7 +303,7 @@ namespace TelemetryEntities
         {
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var method = JsonConvert.DeserializeObject<DeviceMethod>(requestBody);
+            var method = JsonConvert.DeserializeObject<DeviceMethodModel>(requestBody);
 
             if (method == null || string.IsNullOrEmpty(method.Method))
             {
@@ -317,6 +317,8 @@ namespace TelemetryEntities
             {
                 await this.iotHubService.InvokeDeviceMethodAsync(deviceId,
                     method.Method, method.Payload);
+
+                return new OkResult();
             }
             return new NotFoundResult();
         }

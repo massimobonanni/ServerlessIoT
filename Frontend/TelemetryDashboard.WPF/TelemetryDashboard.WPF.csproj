@@ -99,13 +99,21 @@
     <Compile Include="Models\DeviceTelemetryModel.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="ViewModels\DeviceMethodViewModel.cs" />
     <Compile Include="ViewModels\DeviceConfigurationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\DeviceMethodWindow.xaml.cs">
+      <DependentUpon>DeviceMethodWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DeviceConfigurationWindow.xaml.cs">
       <DependentUpon>DeviceConfigurationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowNames.cs" />
+    <Page Include="Views\DeviceMethodWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\DeviceConfigurationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

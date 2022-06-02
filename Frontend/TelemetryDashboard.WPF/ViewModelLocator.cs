@@ -29,6 +29,7 @@ namespace TelemetryDashboard.WPF
 
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<DeviceConfigurationViewModel>();
+            SimpleIoc.Default.Register<DeviceMethodViewModel>();
         }
 
         public MainViewModel MainViewModel
@@ -47,5 +48,13 @@ namespace TelemetryDashboard.WPF
             }
         }
 
+
+        public DeviceMethodViewModel DeviceMethodViewModel
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<DeviceMethodViewModel>();
+            }
+        }
     }
 }
