@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TelemetryEntities.Services
@@ -22,7 +23,7 @@ namespace TelemetryEntities.Services
         }
 
         public async Task SendMessageToDeviceAsync(string deviceId, string message,
-            IDictionary<string, string> properties = null)
+            IDictionary<string, string> properties = null, CancellationToken cancellationToken = default)
         {
             var connectionString = this.configuration["IotHubConnectionString"];
             if (connectionString == null)
@@ -45,7 +46,7 @@ namespace TelemetryEntities.Services
         }
 
         public async Task<bool> InvokeDeviceMethodAsync(string deviceId, string methodName,
-            string methodPayload)
+            string methodPayload, CancellationToken cancellationToken = default)
         {
             var connectionString = this.configuration["IotHubConnectionString"];
             if (connectionString == null)
@@ -61,7 +62,7 @@ namespace TelemetryEntities.Services
 
             try
             {
-                var response = await serviceClient.InvokeDeviceMethodAsync(deviceId, method);
+                var response = await serviceClient.InvokeDeviceMethodAsync(deviceId, method, cancellationToken);
                 return response.Status == 200;
             }
             catch (Exception ex)

@@ -150,10 +150,14 @@
             <Grid Name="DeviceFooter" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
-                <Button Margin="10" Grid.Column="0" Command="{Binding Path=HideTelemetryCommand}" VerticalAlignment="Center">Back</Button>
-                <Image Grid.Column="1" Margin="10" Width="50" Height="50" 
+                <Button Margin="10" Grid.Column="0" Command="{Binding Path=HideTelemetryCommand}" VerticalAlignment="Center">&lt;-Back</Button>
+                <Button Grid.Column="1" Command="{Binding Path=ConfigureDeviceCommand}"  VerticalAlignment="Center" Margin="10,0,10,0">Configure Device</Button>
+                <Button Grid.Column="2" Command="{Binding Path=DeviceMethodCommand}"  VerticalAlignment="Center" Margin="10,0,10,0">Call Method Device</Button>
+                <Image Grid.Column="3" Margin="10" Width="50" Height="50" 
                        Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}" Source="/TelemetryDashboard.WPF;component/Resources/Green_sphere.png"></Image>
             </Grid>
         </Grid>
