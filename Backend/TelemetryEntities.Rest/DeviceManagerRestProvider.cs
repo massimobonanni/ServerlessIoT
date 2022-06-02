@@ -110,5 +110,24 @@ namespace TelemetryEntities.Rest
             }
             return null;
         }
+
+        public async Task<bool> CallDeviceMethodAsync(string deviceId, 
+            DeviceMethod method, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(deviceId))
+                throw new ArgumentException(nameof(deviceId));
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            var uri = this.CreateAPIUri(null, $"api/devices/{deviceId}/method");
+
+            string methodJson = JsonConvert.SerializeObject(method, Formatting.None);
+
+            var postContent = new StringContent(methodJson, Encoding.UTF8, "application/json");
+
+            var response = await this._httpClient.PostAsync(uri, postContent, cancellationToken);
+
+            return response.IsSuccessStatusCode;
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TelemetryEntities.Models
+namespace ServerlessIoT.Core.Models
 {
     public class DeviceMethod
     {
