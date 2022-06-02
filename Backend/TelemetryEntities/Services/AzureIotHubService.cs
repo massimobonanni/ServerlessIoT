@@ -43,5 +43,21 @@ namespace TelemetryEntities.Services
 
             await serviceClient.SendAsync(deviceId, deviceMessage);
         }
+
+        public async Task InvokeDeviceMethodAsync(string deviceId, string methodName,
+            string methodPayload)
+        {
+            var connectionString = this.configuration["IotHubConnectionString"];
+            if (connectionString == null)
+                return;
+
+            this.logger.LogInformation($"Calling device {deviceId} method {methodName}");
+
+            using ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(connectionString);
+
+            CloudToDeviceMethod method = new CloudToDeviceMethod(methodName);
+            method.SetPayloadJson(methodPayload);
+            await serviceClient.InvokeDeviceMethodAsync(deviceId, method);
+        }
     }
 }

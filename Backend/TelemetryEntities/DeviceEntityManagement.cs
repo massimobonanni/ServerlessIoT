@@ -28,11 +28,13 @@ namespace TelemetryEntities
 {
     public class DeviceEntityManagement
     {
-        private readonly IEntityFactory _entityfactory;
+        private readonly IEntityFactory entityfactory;
+        private readonly IIotHubService iotHubService;
 
-        public DeviceEntityManagement(IEntityFactory entityFactory)
+        public DeviceEntityManagement(IEntityFactory entityFactory, IIotHubService iotHubService)
         {
-            this._entityfactory = entityFactory;
+            this.entityfactory = entityFactory;
+            this.iotHubService = iotHubService;
         }
 
         [FunctionName(nameof(IoTHubDispatcher))]
@@ -45,7 +47,7 @@ namespace TelemetryEntities
             {
                 var telemetry = message.ExtractDeviceTelemetry(logger);
                 logger.LogTelemetryInfo(telemetry);
-                var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
+                var entityId = await this.entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
                 await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
             }
         }
@@ -76,7 +78,7 @@ namespace TelemetryEntities
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var telemetry = JsonConvert.DeserializeObject<DeviceTelemetry>(requestBody);
 
-            var entityId = await this._entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
+            var entityId = await this.entityfactory.GetEntityIdAsync(telemetry.DeviceId, default);
 
             await client.SignalEntityAsync<IDeviceEntity>(entityId, d => d.TelemetryReceived(telemetry));
 
@@ -170,7 +172,7 @@ namespace TelemetryEntities
             [DurableClient] IDurableEntityClient client)
         {
 
-            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
+            var entityId = await this.entityfactory.GetEntityIdAsync(deviceId, default);
 
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
             if (entity.EntityExists)
@@ -218,7 +220,7 @@ namespace TelemetryEntities
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var configuration = JsonConvert.DeserializeObject<DeviceEntityConfiguration>(requestBody);
 
-            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
+            var entityId = await this.entityfactory.GetEntityIdAsync(deviceId, default);
 
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
             if (entity.EntityExists)
@@ -258,7 +260,7 @@ namespace TelemetryEntities
             string deviceId,
             [DurableClient] IDurableEntityClient client)
         {
-            var entityId = await this._entityfactory.GetEntityIdAsync(deviceId, default);
+            var entityId = await this.entityfactory.GetEntityIdAsync(deviceId, default);
 
             var entity = await client.ReadEntityStateAsync<JObject>(entityId);
             if (entity.EntityExists)
@@ -267,6 +269,56 @@ namespace TelemetryEntities
                 return new OkObjectResult(configuration);
             }
             return new NotFoundObjectResult(deviceId);
+        }
+
+        [OpenApiOperation("callMethodDevice",
+           new[] { "Devices" },
+           Summary = "Call a method of a device",
+           Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter("deviceId",
+            Summary = "Identifier of the device",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Path,
+            Required = true,
+            Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiRequestBody("application/json",
+            typeof(DeviceMethod),
+            Description = "The method to call",
+            Required = true)]
+        [OpenApiResponseWithoutBody(System.Net.HttpStatusCode.OK,
+            Summary = "The method is called correctly")]
+        [OpenApiResponseWithoutBody(System.Net.HttpStatusCode.NotFound,
+            Summary = "The device doesn't exist")]
+        [OpenApiResponseWithoutBody(System.Net.HttpStatusCode.BadRequest,
+            Summary = "The method payload is not valid")]
+        [OpenApiSecurity("apikeyquery_auth",
+            SecuritySchemeType.ApiKey,
+            In = OpenApiSecurityLocationType.Query,
+            Name = "code")]
+
+        [FunctionName(nameof(CallMethodDevice))]
+        public async Task<IActionResult> CallMethodDevice(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "devices/{deviceId}/method")] HttpRequest req,
+            string deviceId,
+            [DurableClient] IDurableEntityClient client)
+        {
+
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var method = JsonConvert.DeserializeObject<DeviceMethod>(requestBody);
+
+            if (method == null || string.IsNullOrEmpty(method.Method))
+            {
+                return new BadRequestResult();
+            }
+
+            var entityId = await this.entityfactory.GetEntityIdAsync(deviceId, default);
+
+            var entity = await client.ReadEntityStateAsync<JObject>(entityId);
+            if (entity.EntityExists)
+            {
+                await this.iotHubService.InvokeDeviceMethodAsync(deviceId,
+                    method.Method, method.Payload);
+            }
+            return new NotFoundResult();
         }
     }
 
