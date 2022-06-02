@@ -18,6 +18,6 @@ namespace ServerlessIoT.Core.Interfaces
 
         Task<DeviceConfigurationModel> GetDeviceConfigurationAsync(string deviceId, CancellationToken cancellationToken);
 
-        Task<bool> CallDeviceMethodAsync(string deviceId,DeviceMethod method, CancellationToken cancellationToken)
+        Task<bool> CallDeviceMethodAsync(string deviceId, DeviceMethodModel method, CancellationToken cancellationToken);
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerlessIoT.Core.Models
 {
-    public class DeviceMethod
+    public class DeviceMethodModel
     {
         [JsonProperty("method")]
         public string Method { get; set; }
