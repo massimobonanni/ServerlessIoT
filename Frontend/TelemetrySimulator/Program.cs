@@ -73,8 +73,7 @@ namespace TelemetrySimulator
             var tasks = new List<Task>();
             foreach (var device in config.Devices)
             {
-                tasks.Add(SendDeviceToCloudMessagesAsync(device, cts.Token));
-                tasks.Add(ReceiveCloudToDeviceMessagesAsync(device, cts.Token));
+                tasks.Add(ManageDevice(device, cts.Token));
                 await Task.Delay(rand.Next(125, 2000));
             }
 
@@ -131,20 +130,22 @@ namespace TelemetrySimulator
         }
 
 
-        private static async Task SendDeviceToCloudMessagesAsync(DeviceConfiguration device, CancellationToken ct)
+        private static async Task ManageDevice(DeviceConfiguration device, CancellationToken ct)
         {
             DeviceClient deviceClient = null;
             if (!string.IsNullOrWhiteSpace(device.ConnectionString))
             {
                 var cs = IotHubConnectionStringBuilder.Create(device.ConnectionString);
                 deviceClient = DeviceClient.CreateFromConnectionString(cs.ToString(), TransportType.Mqtt);
+                await deviceClient.SetReceiveMessageHandlerAsync(ReceiveMessageHandler, device);
+                await deviceClient.SetMethodDefaultHandlerAsync(MethodHandler, device);
             }
 
             var temperatureGenerator = TelemetryGeneratorFactory.Create(device.TemperatureGenerator);
             var humidityGenerator = TelemetryGeneratorFactory.Create(device.HumidityGenerator);
 
             var startupDelay = rand.Next(0, 10000);
-            await Task.Delay(startupDelay,ct);
+            await Task.Delay(startupDelay, ct);
 
             while (!ct.IsCancellationRequested)
             {
@@ -167,7 +168,6 @@ namespace TelemetrySimulator
                     ContentEncoding = "utf-8",
                 };
 
-
                 // Send the telemetry message (if the connectionstring for device is configured)
                 if (deviceClient != null)
                     await deviceClient.SendEventAsync(message);
@@ -187,42 +187,26 @@ namespace TelemetrySimulator
                 deviceClient.Dispose();
         }
 
-        private static async Task ReceiveCloudToDeviceMessagesAsync(DeviceConfiguration device, CancellationToken ct)
+        private static Task<MethodResponse> MethodHandler(MethodRequest methodRequest, object userContext)
         {
-            DeviceClient deviceClient = null;
-            if (!string.IsNullOrWhiteSpace(device.ConnectionString))
-            {
-                var cs = IotHubConnectionStringBuilder.Create(device.ConnectionString);
-                deviceClient = DeviceClient.CreateFromConnectionString(cs.ToString(), TransportType.Mqtt);
-            }
+            var device = (DeviceConfiguration)userContext;
 
-            while (!ct.IsCancellationRequested)
-            {
-                try
-                {
-                    Message receivedMessage = await deviceClient.ReceiveAsync(TimeSpan.FromMilliseconds(1000));
-                    if (receivedMessage != null)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"{DateTime.Now} > Device {device.Id} > Receiving message: {Encoding.ASCII.GetString(receivedMessage.GetBytes())}");
-                        Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{DateTime.Now} > Device {device.Id} > Method: {methodRequest.Name}");
+            Console.ResetColor();
 
-                        await deviceClient.CompleteAsync(receivedMessage, ct);
-                        receivedMessage.Dispose();
-                    }
-                    await Task.Delay(500, ct);
-                }
-                catch (TaskCanceledException)
-                {
-                    break;
-                }
-                catch 
-                {
-                }
-            }
+            return Task.FromResult(new MethodResponse(200));
+        }
 
-            if (deviceClient != null)
-                deviceClient.Dispose();
+        private static Task ReceiveMessageHandler(Message message, object userContext)
+        {
+            var device = (DeviceConfiguration)userContext;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{DateTime.Now} > Device {device.Id} > Receiving message: {Encoding.ASCII.GetString(message.GetBytes())}");
+            Console.ResetColor();
+
+            return Task.CompletedTask;
         }
     }
 }
