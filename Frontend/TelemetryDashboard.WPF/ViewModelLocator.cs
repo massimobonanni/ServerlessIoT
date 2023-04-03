@@ -1,6 +1,5 @@
-﻿using CommonServiceLocator;
-using GalaSoft.MvvmLight.Ioc;
-using GalaSoft.MvvmLight.Views;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using ServerlessIoT.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -18,25 +17,26 @@ namespace TelemetryDashboard.WPF
     {
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
-            SimpleIoc.Default.Register(() => new HttpClient());
-            SimpleIoc.Default.Register<IDeviceManager>(() =>
-            {
-                var httpClient = SimpleIoc.Default.GetInstance<HttpClient>();
-                return new DeviceManagerRestProvider(httpClient, App.Parameters.APIUrl, App.Parameters.APIKey);
-            });
-
-            SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<DeviceConfigurationViewModel>();
-            SimpleIoc.Default.Register<DeviceMethodViewModel>();
+            Ioc.Default.ConfigureServices(
+                new ServiceCollection()
+                    .AddScoped<HttpClient>(sp => new HttpClient())
+                    .AddScoped<IDeviceManager>(sp =>
+                    {
+                        var httpClient = sp.GetService<HttpClient>();
+                        return new DeviceManagerRestProvider(httpClient, App.Parameters.APIUrl, App.Parameters.APIKey);
+                    })
+                    .AddScoped<MainViewModel>()
+                    .AddScoped<DeviceConfigurationViewModel>()
+                    .AddScoped<DeviceMethodViewModel>()
+                    .BuildServiceProvider()
+            );
         }
 
         public MainViewModel MainViewModel
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<MainViewModel>();
+                return Ioc.Default.GetService<MainViewModel>();
             }
         }
 
@@ -44,7 +44,7 @@ namespace TelemetryDashboard.WPF
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<DeviceConfigurationViewModel>();
+                return Ioc.Default.GetService<DeviceConfigurationViewModel>();
             }
         }
 
@@ -53,7 +53,7 @@ namespace TelemetryDashboard.WPF
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<DeviceMethodViewModel>();
+                return Ioc.Default.GetService<DeviceMethodViewModel>();
             }
         }
     }

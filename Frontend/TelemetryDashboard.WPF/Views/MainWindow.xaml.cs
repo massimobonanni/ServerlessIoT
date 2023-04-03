@@ -1,18 +1,5 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TelemetryDashboard.WPF.Messages;
 using TelemetryDashboard.WPF.Views;
 
@@ -27,10 +14,10 @@ namespace TelemetryDashboard.WPF
         {
             InitializeComponent();
 
-            Messenger.Default.Register<OpenWindowMessage>(this, OpenWindowMessageHandler);
+            WeakReferenceMessenger.Default.Register<OpenWindowMessage>(this, OpenWindowMessageHandler);
         }
 
-        private async void OpenWindowMessageHandler(OpenWindowMessage msg)
+        private async void OpenWindowMessageHandler(object recipient, OpenWindowMessage msg)
         {
             switch (msg.WindowToOpen)
             {
