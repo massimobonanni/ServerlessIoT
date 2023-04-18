@@ -1,11 +1,9 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using GalaSoft.MvvmLight.Messaging;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using ServerlessIoT.Core.Interfaces;
 using ServerlessIoT.Core.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using TelemetryDashboard.WPF.Interfaces;
@@ -35,9 +33,8 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._deviceName;
             set
             {
-                _deviceName = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(ViewTitle));
+                SetProperty(ref this._deviceName, value);
+                OnPropertyChanged(nameof(ViewTitle));
             }
         }
 
@@ -47,9 +44,8 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._deviceId;
             set
             {
-                _deviceId = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(ViewTitle));
+                SetProperty(ref this._deviceId, value);
+                OnPropertyChanged(nameof(ViewTitle));
             }
         }
 
@@ -57,66 +53,42 @@ namespace TelemetryDashboard.WPF.ViewModels
         public string RetentionHistory
         {
             get => this._retentionHistory;
-            set
-            {
-                _retentionHistory = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._retentionHistory, value);
         }
 
         private string _temperatureHighThreshold;
         public string TemperatureHighThreshold
         {
             get => this._temperatureHighThreshold;
-            set
-            {
-                _temperatureHighThreshold = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._temperatureHighThreshold, value);
         }
 
         private string _temperatureLowThreshold;
         public string TemperatureLowThreshold
         {
             get => this._temperatureLowThreshold;
-            set
-            {
-                _temperatureLowThreshold = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._temperatureLowThreshold, value);
         }
 
         private string _temperatureDecimalPrecision;
         public string TemperatureDecimalPrecision
         {
             get => this._temperatureDecimalPrecision;
-            set
-            {
-                _temperatureDecimalPrecision = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._temperatureDecimalPrecision, value);
         }
 
         private string _humidityDecimalPrecision;
         public string HumidityDecimalPrecision
         {
             get => this._humidityDecimalPrecision;
-            set
-            {
-                _humidityDecimalPrecision = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._humidityDecimalPrecision, value);
         }
 
         private string _notificationNumber;
         public string NotificationNumber
         {
             get => this._notificationNumber;
-            set
-            {
-                _notificationNumber = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._notificationNumber, value);
         }
         #endregion [ Properties ]
 
@@ -184,7 +156,7 @@ namespace TelemetryDashboard.WPF.ViewModels
             this.IsBusy = false;
             if (updateResult)
             {
-                Messenger.Default.Send(new CloseWindowMessage()
+                WeakReferenceMessenger.Default.Send(new CloseWindowMessage()
                 {
                     WindowToClose = WindowNames.DeviceConfiguration,
                     Parameter = null

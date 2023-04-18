@@ -1,6 +1,3 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using GalaSoft.MvvmLight.Messaging;
 using ServerlessIoT.Core.Interfaces;
 using ServerlessIoT.Core.Models;
 using System;
@@ -13,6 +10,10 @@ using TelemetryDashboard.WPF.Messages;
 using TelemetryDashboard.WPF.Models;
 using DeviceTelemetryModel = TelemetryDashboard.WPF.Models.DeviceTelemetryModel;
 using DeviceInfoModel = TelemetryDashboard.WPF.Models.DeviceInfoModel;
+using System.Configuration;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace TelemetryDashboard.WPF.ViewModels
 {
@@ -25,8 +26,8 @@ namespace TelemetryDashboard.WPF.ViewModels
         public MainViewModel(IDeviceManager deviceManager)
         {
             this._deviceManager = deviceManager;
-            this.SearchPanelVisible = !this.IsInDesignMode;
             _devicesUpdateWorker = new BackgroundWorker();
+            this.SearchPanelVisible = true;
             _devicesUpdateWorker.WorkerSupportsCancellation = true;
             _devicesUpdateWorker.DoWork += DevicesUpdateWorker_DoWork;
         }
@@ -38,9 +39,10 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._selectedDevice;
             set
             {
-                _selectedDevice = value;
-                this.RaisePropertyChanged();
-                this.ShowTelemetryCommand.RaiseCanExecuteChanged();
+                SetProperty(ref _selectedDevice, value);
+                this.ShowTelemetryCommand.NotifyCanExecuteChanged();
+                this.ConfigureDeviceCommand.NotifyCanExecuteChanged();
+                this.DeviceMethodCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -48,22 +50,14 @@ namespace TelemetryDashboard.WPF.ViewModels
         public ObservableCollection<DeviceInfoModel> Devices
         {
             get => this._devices;
-            set
-            {
-                _devices = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _devices, value);
         }
 
         private ObservableCollection<DeviceTelemetryModel> _deviceTelemetries;
         public ObservableCollection<DeviceTelemetryModel> DeviceTelemetries
         {
             get => this._deviceTelemetries;
-            set
-            {
-                _deviceTelemetries = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceTelemetries, value);
         }
 
         public string ViewTitle
@@ -75,56 +69,40 @@ namespace TelemetryDashboard.WPF.ViewModels
         public string TelemetryDeviceID
         {
             get => _telemetryDeviceID;
-            set
-            {
-                _telemetryDeviceID = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _telemetryDeviceID, value);
         }
 
         private string _telemetryDeviceName;
         public string TelemetryDeviceName
         {
             get => _telemetryDeviceName;
-            set
-            {
-                _telemetryDeviceName = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _telemetryDeviceName, value);
         }
 
         private DateTimeOffset _telemetryDeviceLastUpdate;
         public DateTimeOffset TelemetryDeviceLastUpdate
         {
             get => _telemetryDeviceLastUpdate;
-            set
-            {
-                _telemetryDeviceLastUpdate = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _telemetryDeviceLastUpdate, value);
         }
 
         private string _deviceNameFilter;
         public string DeviceNameFilter
         {
             get => _deviceNameFilter;
-            set
-            {
-                _deviceNameFilter = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceNameFilter, value);
         }
 
         private bool _searchPanelVisible;
         public bool SearchPanelVisible
         {
             get => _searchPanelVisible;
-            set
+            set 
             {
-                _searchPanelVisible = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(DevicePanelVisible));
+                SetProperty(ref _searchPanelVisible, value);
+                this.OnPropertyChanged(nameof(DevicePanelVisible));
             }
+
         }
 
         public bool DevicePanelVisible
@@ -184,7 +162,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                     _configureDeviceCommand = new RelayCommand(
                         () =>
                         {
-                            Messenger.Default.Send(new OpenWindowMessage()
+                            WeakReferenceMessenger.Default.Send(new OpenWindowMessage()
                             {
                                 WindowToOpen = WindowNames.DeviceConfiguration,
                                 Parameter = this.SelectedDevice.DeviceInfo
@@ -209,7 +187,7 @@ namespace TelemetryDashboard.WPF.ViewModels
                     _deviceMethodCommand = new RelayCommand(
                         () =>
                         {
-                            Messenger.Default.Send(new OpenWindowMessage()
+                            WeakReferenceMessenger.Default.Send(new OpenWindowMessage()
                             {
                                 WindowToOpen = WindowNames.DeviceMethod,
                                 Parameter = this.SelectedDevice.DeviceInfo

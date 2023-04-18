@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 
 namespace TelemetryDashboard.WPF.ViewModels
 {
-    public abstract class ViewModelBase : GalaSoft.MvvmLight.ViewModelBase
+    public abstract class ViewModelBase : ObservableObject
     {
 
         public ViewModelBase()
@@ -12,15 +13,8 @@ namespace TelemetryDashboard.WPF.ViewModels
         private bool _isBusy;
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
-            set
-            {
-                _isBusy = value;
-                RaisePropertyChanged();
-            }
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
         }
     }
 }

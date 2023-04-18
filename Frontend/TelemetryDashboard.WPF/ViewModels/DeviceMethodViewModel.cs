@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using GalaSoft.MvvmLight.Messaging;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using ServerlessIoT.Core.Interfaces;
 using ServerlessIoT.Core.Models;
 using System;
@@ -35,9 +35,8 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._deviceName;
             set
             {
-                _deviceName = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(ViewTitle));
+                SetProperty(ref this._deviceName, value);
+                this.OnPropertyChanged(nameof(ViewTitle));
             }
         }
 
@@ -47,9 +46,8 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._deviceId;
             set
             {
-                _deviceId = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(ViewTitle));
+                SetProperty(ref this._deviceId, value);
+                this.OnPropertyChanged(nameof(ViewTitle));
             }
         }
 
@@ -57,22 +55,14 @@ namespace TelemetryDashboard.WPF.ViewModels
         public string MethodName
         {
             get => this._methodName;
-            set
-            {
-                _methodName = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._methodName, value);
         }
 
         private string _methodPayload;
         public string MethodPayload
         {
             get => this._methodPayload;
-            set
-            {
-                _methodPayload = value;
-                this.RaisePropertyChanged();
-            }
+            set => SetProperty(ref this._methodPayload, value);
         }
         #endregion [ Properties ]
 
@@ -110,7 +100,7 @@ namespace TelemetryDashboard.WPF.ViewModels
             this.IsBusy = false;
             if (updateResult)
             {
-                Messenger.Default.Send(new CloseWindowMessage()
+                WeakReferenceMessenger.Default.Send(new CloseWindowMessage()
                 {
                     WindowToClose = WindowNames.DeviceMethod,
                     Parameter = null
