@@ -1,6 +1,6 @@
 # ServerlessIoT
 
-Simple IoT sulution that use Durable Entities to store information and status of your devices.
+Simple IoT solution that use Durable Entities to store information and status of your devices.
 
 
 ![Architecture of the sample](Documents/Images/Architecture.png)

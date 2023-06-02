@@ -13,7 +13,9 @@ The app settings looks like the following:
     "TwilioFromNumber": "",
     "IotHubName": "",
     "EventHubCompatibleConnectionString": "",
-    "IotHubConnectionString":""
+    "IotHubConnectionString":"",
+    "StorageCapture:ConnectionString": "",
+    "StorageCapture:ContainerName": ""
   }
 }
 ```
@@ -33,3 +35,7 @@ The app settings looks like the following:
 * `IotHubConnectionString` : The IoT Hub connection string. It is used by the platform to send message to devices. You can find it in the "Shared Access Policies" blade of the portal.
 
 ![](Images/IotHubConnectionString.jpg)
+
+* `StorageCapture:ConnectionString` : the connection string of the Storage Account you want to use to store capture data from devices. The Storage capture is the feature that allow you to create an export blob (csv format) from every single device with telemetry data.
+
+* `StorageCapture:ContainerName` : the name of the container in which the storage capture feature save the capture blobs. The feature will create a folder for each device and save csv blob withe the datetime of the capture.
