@@ -16,6 +16,7 @@ namespace TelemetryEntities
         {
             builder.Services.AddScoped<IEntityFactory, EntityFactory>();
             builder.Services.AddScoped<IIotHubService, AzureIotHubService>();
+            builder.Services.AddScoped<IStorageService, AzureStorageAccountService>();
         }
     }
 }

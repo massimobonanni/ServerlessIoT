@@ -18,7 +18,7 @@ namespace TelemetryEntities.Models
 
         [JsonProperty("notificationNumber")]
         public string NotificationNumber { get; set; }
-        
+
         [JsonProperty("temperatureDecimalPrecision")]
         public int TemperatureDecimalPrecision { get; set; } = 2;
 
@@ -27,12 +27,40 @@ namespace TelemetryEntities.Models
 
         public bool TemperatureHighAlertEnabled()
         {
-            return TemperatureHighThreshold.HasValue ;
+            return TemperatureHighThreshold.HasValue;
         }
 
         public bool TemperatureLowAlertEnabled()
         {
             return TemperatureLowThreshold.HasValue;
+        }
+
+        [JsonProperty("storageCapture")]
+        public StorageCaptureConfiguration StorageCapture { get; set; } = new();
+
+        public bool StorageCaptureEnabled()
+        {
+            return StorageCapture!= null && StorageCapture.Enabled;
+        }
+    }
+
+    public class StorageCaptureConfiguration
+    {
+        [JsonProperty("enabled")]
+        public bool Enabled { get; set; } = false;
+
+        [JsonProperty("timeWindowInMinutes")]
+        public int TimeWindowInMinutes { get; set; } = 5;
+
+        public bool IsTimeToCapture(DateTimeOffset? lastCapture)
+        {
+            if (!Enabled)
+                return false;
+
+            if (!lastCapture.HasValue)
+                return true;
+
+            return DateTimeOffset.Now.Subtract(lastCapture.Value).TotalMinutes >= TimeWindowInMinutes;
         }
     }
 }

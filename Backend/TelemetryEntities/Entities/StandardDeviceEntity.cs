@@ -45,6 +45,9 @@ namespace TelemetryEntities.Entities
 
         [JsonProperty("temperatureLowNotificationFired")]
         public bool TemperatureLowNotificationFired { get; set; } = false;
+
+        [JsonProperty("lastStorageCapture")]
+        public DateTimeOffset? LastStorageCapture { get; set; }
         #endregion [ State ]
 
         #region [ Behaviour ]
@@ -72,16 +75,24 @@ namespace TelemetryEntities.Entities
 
             ClearHistoryData();
             CheckAlert();
+            ManageStorageCapture();
         }
 
         public void SetConfiguration(DeviceEntityConfiguration config)
         {
             if (config == null)
                 return;
+
             if (config.HumidityDecimalPrecision < 0)
                 config.HumidityDecimalPrecision = 2;
+
             if (config.TemperatureDecimalPrecision < 0)
                 config.TemperatureDecimalPrecision = 2;
+
+            if (config.StorageCapture == null)
+                config.StorageCapture = new StorageCaptureConfiguration();
+            else if (config.StorageCapture.TimeWindowInMinutes < 0)
+                config.StorageCapture.TimeWindowInMinutes = 5;
 
             this.EntityConfig = config;
         }
@@ -92,6 +103,32 @@ namespace TelemetryEntities.Entities
         {
             telemetry.Data.Temperature = Math.Round(telemetry.Data.Temperature, EntityConfig.TemperatureDecimalPrecision);
             telemetry.Data.Humidity = Math.Round(telemetry.Data.Humidity, EntityConfig.HumidityDecimalPrecision);
+        }
+
+        private void ManageStorageCapture()
+        {
+            if (this.EntityConfig.StorageCaptureEnabled())
+            {
+                if (this.EntityConfig.StorageCapture.IsTimeToCapture(this.LastStorageCapture))
+                {
+                    if (!this.LastStorageCapture.HasValue)
+                        this.LastStorageCapture = this.HistoryData.Keys.Min();
+
+                    var captureData = new StorageCaptureData()
+                    {
+                        DeviceId = Entity.Current.EntityKey,
+                        DeviceName = this.DeviceName,
+                        Data = this.HistoryData
+                        .Where(d => d.Key >= this.LastStorageCapture.Value)
+                        .ToDictionary(d => d.Key, d => d.Value)
+                    };
+
+                    Entity.Current.StartNewOrchestration(
+                        nameof(StorageCaptureOrchestrator.SaveCapture), captureData);
+
+                    this.LastStorageCapture = DateTimeOffset.Now;
+                }
+            }
         }
 
         private void CheckAlert()

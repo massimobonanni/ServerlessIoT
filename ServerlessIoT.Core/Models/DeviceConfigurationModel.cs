@@ -24,5 +24,8 @@ namespace TelemetryEntities.Models
 
         [JsonProperty("humidityDecimalPrecision")]
         public int HumidityDecimalPrecision { get; set; } = 2;
+
+        [JsonProperty("storageCapture")]
+        public StorageCaptureConfigurationModel StorageCapture { get; set; } = new StorageCaptureConfigurationModel();
     }
 }

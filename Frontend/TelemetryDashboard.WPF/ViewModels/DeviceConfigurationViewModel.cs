@@ -90,6 +90,20 @@ namespace TelemetryDashboard.WPF.ViewModels
             get => this._notificationNumber;
             set => SetProperty(ref this._notificationNumber, value);
         }
+
+        private bool _storageCaptureEnabled;
+        public bool StorageCaptureEnabled
+        {
+            get => this._storageCaptureEnabled;
+            set => SetProperty(ref this._storageCaptureEnabled, value);
+        }
+
+        private string _storageCaptureTimeWindowInMinutes;
+        public string StorageCaptureTimeWindowInMinutes
+        {
+            get => this._storageCaptureTimeWindowInMinutes;
+            set => SetProperty(ref this._storageCaptureTimeWindowInMinutes, value);
+        }
         #endregion [ Properties ]
 
         #region [ Commands ]
@@ -141,6 +155,14 @@ namespace TelemetryDashboard.WPF.ViewModels
                 humidityDecimalPrecision = 2;
             }
 
+            int storageCaptureTimeWindowInMinutes;
+            if (!int.TryParse(this.StorageCaptureTimeWindowInMinutes, out storageCaptureTimeWindowInMinutes)
+                || storageCaptureTimeWindowInMinutes < 0)
+            {
+                storageCaptureTimeWindowInMinutes = 5;
+            }
+
+
             var configuration = new DeviceConfigurationModel()
             {
                 HistoryRetention = TimeSpan.FromSeconds(retentionHistory),
@@ -149,7 +171,10 @@ namespace TelemetryDashboard.WPF.ViewModels
                 NotificationNumber = this.NotificationNumber,
                 TemperatureDecimalPrecision = temperatureDecimalPrecision,
                 HumidityDecimalPrecision = humidityDecimalPrecision
+
             };
+            configuration.StorageCapture.Enabled = this.StorageCaptureEnabled;
+            configuration.StorageCapture.TimeWindowInMinutes = storageCaptureTimeWindowInMinutes;
 
             var updateResult = await this._deviceManager.SetDeviceConfigurationAsync(this.DeviceId, configuration, default);
 

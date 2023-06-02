@@ -67,6 +67,7 @@ namespace TelemetryEntities.Services
             }
             catch (Exception ex)
             {
+                this.logger.LogError(ex, $"Error calling device {deviceId} method {methodName}");
                 return false;
             }
 
