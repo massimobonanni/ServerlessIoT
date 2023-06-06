@@ -11,59 +11,95 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Retention History (in secs):</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=RetentionHistory,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <Label Margin="10,10,0,10" FontWeight="Bold">Device:</Label>
+            <Label Margin="10" FontWeight="Bold" Content="{Binding Path=DeviceName,UpdateSourceTrigger=PropertyChanged}"></Label>
         </StackPanel>
-
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">High temperature notification threshold (in degrees):</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureHighThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Low temperature notification threshold (in degrees):</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureLowThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="3" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Notification number</Label>
-            <TextBox Width="200" Margin="10" Text="{Binding Path=NotificationNumber,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Number of decimal for Temperature:</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="5" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Number of decimal for Humidity:</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=HumidityDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="6" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Storage account capture:</Label>
-            <CheckBox Margin="10" IsChecked="{Binding Path=StorageCaptureEnabled,UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-        </StackPanel>
-
-        <StackPanel Grid.Row="7" Orientation="Horizontal">
-            <Label Margin="10,10,0,10">Time window for Storage Capture (in minutes):</Label>
-            <TextBox Width="100" Margin="10" Text="{Binding Path=StorageCaptureTimeWindowInMinutes,UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        </StackPanel>
+        <TabControl Grid.Row="1" Margin="10">
+            <TabItem>
+                <TabItem.Header>
+                    General
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Retention History (in secs):</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=RetentionHistory,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Number of decimal for Temperature:</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Number of decimal for Humidity:</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=HumidityDecimalPrecision,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    Notifications
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">High temperature notification threshold (in degrees):</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureHighThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Low temperature notification threshold (in degrees):</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=TemperatureLowThreshold,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Notification number</Label>
+                            <TextBox Width="200" Margin="10" Text="{Binding Path=NotificationNumber,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    Storage Capture
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Storage account capture:</Label>
+                            <CheckBox Margin="10" IsChecked="{Binding Path=StorageCaptureEnabled,UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <Label Margin="10,10,0,10">Time window for Storage Capture (in minutes):</Label>
+                            <TextBox Width="100" Margin="10" Text="{Binding Path=StorageCaptureTimeWindowInMinutes,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+        </TabControl>
         
-        <Button Grid.Row="9" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
+        <Button Grid.Row="3" Margin="10" Command="{Binding Path=UpdateConfigurationCommand}">Update</Button>
 
-        <Grid Grid.Row="0" Grid.RowSpan="10" Background="White" Opacity="0.6" 
+        <Grid Grid.Row="0" Grid.RowSpan="4" Background="White" Opacity="0.6" 
                   Visibility="{Binding Path=IsBusy,Converter={StaticResource BooleanToVisibilityConverter}}">
             <ProgressBar Width="300" Height="50" IsIndeterminate="{Binding Path=IsBusy}"
                              IsEnabled="{Binding Path=IsBusy}"/>
