@@ -18,7 +18,7 @@ using CommunityToolkit.Mvvm.Messaging;
 namespace TelemetryDashboard.WPF.ViewModels
 {
 
-    public class MainViewModel : ViewModelBase
+    public partial class MainViewModel : ViewModelBase
     {
         private readonly BackgroundWorker _devicesUpdateWorker;
         private readonly IDeviceManager _deviceManager;

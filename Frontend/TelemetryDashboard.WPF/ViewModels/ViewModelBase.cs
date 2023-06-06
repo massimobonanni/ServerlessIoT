@@ -3,7 +3,7 @@ using System;
 
 namespace TelemetryDashboard.WPF.ViewModels
 {
-    public abstract class ViewModelBase : ObservableObject
+    public abstract partial class ViewModelBase : ObservableObject
     {
 
         public ViewModelBase()
